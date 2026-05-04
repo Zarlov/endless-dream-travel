@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   FaGlobeAmericas,
   FaTags,
 } from "react-icons/fa";
+
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mzdoeddd";
 
 const BRAND = {
   black: "#0B0B0B",
@@ -491,7 +493,64 @@ function runContentTests() {
 
 const contentTestResults = runContentTests();
 
+function handleVacationRequest(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.currentTarget);
+
+  const name = formData.get("name") || "";
+  const email = formData.get("email") || "";
+  const tripType = formData.get("tripType") || "";
+  const travelDates = formData.get("travelDates") || "";
+  const details = formData.get("details") || "";
+
+  const subject = encodeURIComponent("Vacation Quote Request");
+
+  const body = encodeURIComponent(
+    [
+      "New vacation quote request:",
+      "",
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Trip Type: ${tripType}`,
+      `Ideal Travel Dates: ${travelDates}`,
+      "",
+      "Dream Trip Details:",
+      details,
+    ].join("\n")
+  );
+
+  window.location.href = `mailto:amy@endlessdreamtravel.com?subject=${subject}&body=${body}`;
+}
 export default function EndlessDreamTravelWebsite() {
+  const [formStatus, setFormStatus] = useState("idle");
+
+  async function handleVacationRequest(event) {
+    event.preventDefault();
+    setFormStatus("sending");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        setFormStatus("success");
+        form.reset();
+      } else {
+        setFormStatus("error");
+      }
+    } catch (error) {
+      setFormStatus("error");
+   }
+  }
   return (
     <main className="min-h-screen bg-[#0B0B0B] text-white">
       {!contentTestResults.passed && (
@@ -981,21 +1040,27 @@ export default function EndlessDreamTravelWebsite() {
 
           <Card className="rounded-[2rem] border-[#F2AE63]/25 bg-[#F7F4EF] shadow-xl">
             <CardContent className="p-6 sm:p-8">
-              <form className="grid gap-5">
+              <form className="grid gap-5" onSubmit={handleVacationRequest}>
+                <input type="hidden" name="_subject" value="New Vacation Quote Request" />
+                <input type="hidden" name="source" value="Endless Dream Travel Website" />
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="grid gap-2 text-sm font-bold text-black/75">
                     Name
                     <input
+                      name="name"
                       className="rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2"
                       placeholder="Your name"
+                      required
                     />
                   </label>
                   <label className="grid gap-2 text-sm font-bold text-black/75">
                     Email
                     <input
+                      name="email"
                       type="email"
                       className="rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2"
                       placeholder="you@example.com"
+                      required
                     />
                   </label>
                 </div>
@@ -1003,7 +1068,10 @@ export default function EndlessDreamTravelWebsite() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="grid gap-2 text-sm font-bold text-black/75">
                     Trip type
-                    <select className="rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2">
+                    <select 
+                      name="tripType"
+                      className="rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2"
+                    >
                       <option>Disney vacation</option>
                       <option>Ocean cruise</option>
                       <option>European river cruise</option>
@@ -1016,6 +1084,7 @@ export default function EndlessDreamTravelWebsite() {
                   <label className="grid gap-2 text-sm font-bold text-black/75">
                     Ideal travel dates
                     <input
+                      name="travelDates"
                       className="rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2"
                       placeholder="Month, season, or dates"
                     />
@@ -1025,17 +1094,32 @@ export default function EndlessDreamTravelWebsite() {
                 <label className="grid gap-2 text-sm font-bold text-black/75">
                   Dream trip details
                   <textarea
+                    name="details"
                     className="min-h-36 rounded-2xl border border-[#F2AE63]/25 bg-white px-4 py-3 text-[#0B0B0B] outline-none ring-[#F2AE63] transition focus:ring-2"
                     placeholder="Destination ideas, number of travelers, budget, ages of kids, cruise line preferences, resort must-haves, or anything else we should know."
+                    required
                   />
                 </label>
 
                 <Button
-                  type="button"
+                  type="submit"
+                  disabled={formStatus === "sending"}
                   className="rounded-full bg-[#0B0B0B] py-6 text-base font-black text-white hover:bg-[#1F1B1D]"
                 >
-                  Submit Vacation Request
+                  {formStatus === "sending" ? "Sending..." : "Submit Vacation Request"}
                 </Button>
+
+                {formStatus === "success" && (
+                  <p className="rounded-2xl bg-green-100 p-4 text-center text-sm font-bold text-green-800">
+                    Thank you! Your vacation request was sent successfully.
+                  </p>
+                )}
+
+                {formStatus === "error" && (
+                  <p className="rounded-2xl bg-red-100 p-4 text-center text-sm font-bold text-red-800">
+                    Something went wrong. Please email amy@endlessdreamtravel.com directly.
+                  </p>
+                )}
 
                 <p className="text-center text-xs leading-5 text-black/50">
                   Prefer email? Send your vacation details to amy@endlessdreamtravel.com and we will help you get started.

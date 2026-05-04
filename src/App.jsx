@@ -19,6 +19,7 @@ import sandalsLogo from "./assets/brands/sandals.png";
 import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
+import carnivalSpecialImage from "./assets/specials/carnival-cruise-line.png";
 
 import {
   FaShip,
@@ -222,8 +223,7 @@ const weeklySpecials = [
   {
     line: "Carnival Cruise Line",
     logo: brandLogos.carnival,
-    image:
-      "https://tbcdn.talentbrew.com/company/241/full_v3_0/img/Carnival-Cruise-Line-og.jpg",
+    image: carnivalSpecialImage,
     sourceUrl: "https://www.carnival.com/cruise-deals",
     headline: "Up to 40% Off + Reduced Deposits",
     offer:
@@ -493,35 +493,6 @@ function runContentTests() {
 
 const contentTestResults = runContentTests();
 
-function handleVacationRequest(event) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-
-  const name = formData.get("name") || "";
-  const email = formData.get("email") || "";
-  const tripType = formData.get("tripType") || "";
-  const travelDates = formData.get("travelDates") || "";
-  const details = formData.get("details") || "";
-
-  const subject = encodeURIComponent("Vacation Quote Request");
-
-  const body = encodeURIComponent(
-    [
-      "New vacation quote request:",
-      "",
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Trip Type: ${tripType}`,
-      `Ideal Travel Dates: ${travelDates}`,
-      "",
-      "Dream Trip Details:",
-      details,
-    ].join("\n")
-  );
-
-  window.location.href = `mailto:amy@endlessdreamtravel.com?subject=${subject}&body=${body}`;
-}
 export default function EndlessDreamTravelWebsite() {
   const [formStatus, setFormStatus] = useState("idle");
 

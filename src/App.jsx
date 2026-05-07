@@ -19,7 +19,10 @@ import sandalsLogo from "./assets/brands/sandals.png";
 import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
+import amawaterwaysSpecialImage from "./assets/specials/amawaterways.jpg";
 import carnivalSpecialImage from "./assets/specials/carnival-cruise-line.png";
+import disneyWorldSpecialImage from "./assets/specials/disney-world.png";
+import vikingSpecialImage from "./assets/specials/viking.jpg"
 
 import {
   FaShip,
@@ -248,8 +251,7 @@ const weeklySpecials = [
   {
     line: "Walt Disney World",
     logo: brandLogos.disneyWorld,
-    image:
-      "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1000/1000/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/50th/Cinderella-Castle-16x9.jpg",
+    image: disneyWorldSpecialImage,
     sourceUrl: "https://disneyworld.disney.go.com/special-offers/",
     headline: "Save Up to 30% on Rooms This Summer",
     offer:
@@ -288,8 +290,7 @@ const weeklySpecials = [
   {
     line: "Viking",
     logo: brandLogos.viking,
-    image:
-      "https://image-handler-api.viking.com/ew0KICAgICAgICAgICJidWNrZXQiOiAiaHR0cHM6Ly9hZW0tcHJvZC1wdWJsaXNoLnZpa2luZy5jb20iLA0KICAgICAgICAgICJrZXkiOiAiY29udGVudC9kYW0vdmlraW5nY3J1aXNlcy9lbi9tYWdub2xpYS1pbWFnZXMvcGFnZXMvbWFya2V0aW5nLXdlYi9tbHAvb25lLXZpa2luZy9vbmUtdmlraW5nLWxwL29uZS12aWtpbmctc3RpbGwtZnJhbWUvVmlraW5nLVdlYnNpdGUtRmFsbGJhY2stSW1hZ2VfMTZ4OS5qcGciLA0KICAgICAgICAgICJlZGl0cyI6IHsNCiAgICAgICAgICAgICJyZXNpemUiOiB7DQogICAgICAgICAgICAgICJ3aWR0aCI6IDE2MDAsDQogICAgICAgICAgICAgICJoZWlnaHQiOiBudWxsLA0KICAgICAgICAgICAgICAiZml0IjogImluc2lkZSIsDQogICAgICAgICAgICAgICJvcHRpb25zIjogew0KICAgICAgICAgICAgICAgICAgICAid2l0aG91dEVubGFyZ2VtZW50IiA6IHRydWUNCiAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgfSwNCgkgICAgICAidG9Gb3JtYXQiOiAid2VicCINCiAgICAgICAgICB9DQogICAgICAgIH0%3D",
+    image: vikingSpecialImage,
     sourceUrl: "https://www.viking.com/",
     headline: "Spring Sale: Up to 30% Off + Free Airfare",
     offer:
@@ -301,8 +302,7 @@ const weeklySpecials = [
   {
     line: "AmaWaterways",
     logo: brandLogos.amaWaterways,
-    image:
-      "https://www.amawaterways.com/Assets/Gallery/Large/AmaWaterways_Gold_Logo.png",
+    image: amawaterwaysSpecialImage,
     sourceUrl: "https://www.amawaterways.com/offers",
     headline: "Complimentary Land Package + $599 Airfare",
     offer:

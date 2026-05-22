@@ -20,7 +20,10 @@ import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
 
-import { buildWeeklySpecials } from "./data/weeklySpecials";
+import {
+  buildWeeklySpecials,
+  weeklySpecialsLastUpdated,
+} from "./data/weeklySpecials";
 
 import {
   FaShip,
@@ -596,6 +599,9 @@ export default function EndlessDreamTravelWebsite() {
               </p>
               <p className="mt-4 text-sm font-bold uppercase tracking-[0.2em] text-[#F2AE63]">
                 Updated weekly
+              </p>
+              <p className="mt-2 text-sm font-semibold text-white/60">
+                Last updated on {weeklySpecialsLastUpdated}
               </p>
             </div>
           </div>

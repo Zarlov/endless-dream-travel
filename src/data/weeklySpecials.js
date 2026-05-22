@@ -3,6 +3,8 @@ import carnivalSpecialImage from "../assets/specials/carnival-cruise-line.png";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
+export const weeklySpecialsLastUpdated = "May 21, 2026";
+
 export function buildWeeklySpecials(brandLogos) {
   return [
     {
@@ -11,12 +13,12 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://assets.dm.rccl.com/is/image/RoyalCaribbeanCruises/ships-big-time-nav-640-480",
       sourceUrl: "https://www.royalcaribbean.com/cruise-deals",
-      headline: "60% Off Second Guest + Kids Sail Free",
+      headline: "Up to $850 Off + 3rd & 4th Guests Sail Free",
       offer:
-        "Royal Caribbean is featuring 60% off the second guest plus Kids Sail Free on qualifying sailings, along with rotating last-minute and destination-specific cruise deals.",
+        "Royal Caribbean is featuring up to $850 off, 3rd and 4th guests sail free, and up to $100 off longer cruises, alongside its 60% off second guest and Kids Sail Free offer.",
       bestFor:
         "Families, short getaways, Perfect Day at CocoCay, and big-ship experiences",
-      finePrint: "Select sailings, categories, dates, and terms apply.",
+      finePrint: "Select sailings, categories, dates, guest counts, and terms apply.",
     },
     {
       line: "Norwegian Cruise Line",
@@ -49,12 +51,12 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://www.msccruisesusa.com/-/media/us/2024/drinks-included-plus-onboard-credit/oc-paddleboarding-group-tile-2x2-desktop.jpg?as=1&bc=transparent&hash=3F5BC7EFAF8112AC5646EA186CDF80E7&mh=465&mw=1245",
       sourceUrl: "https://www.msccruisesusa.com/cruise-deals",
-      headline: "Up to 30% Off + Kids Sail Free",
+      headline: "Memorial Day Sale: Up to 40% Off + Kids Sail Free",
       offer:
-        "MSC is featuring a Summer Preview Sale with up to 30% off cruises plus Kids Sail Free on qualifying sailings, along with last-minute cruise deals and Drinks & Wi-Fi package options.",
+        "MSC Cruises is featuring a Memorial Day Sale with up to 40% off cruises plus Kids Sail Free on qualifying sailings, along with an extended Cruise from $199 + Kids Sail Free offer to the Caribbean, Alaska, and more.",
       bestFor:
-        "Value-focused Caribbean, Bahamas, Europe, and family cruising",
-      finePrint: "Offer availability, ship, itinerary, and package rules apply.",
+        "Value-focused Caribbean, Bahamas, Europe, Alaska, and family cruising",
+      finePrint: "Select sailings, categories, dates, destinations, and terms apply.",
     },
     {
       line: "Walt Disney World",
@@ -73,27 +75,28 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.dcl,
       image:
         "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1000/1000/75/vision-dam/digital/parks-platform/parks-global-assets/disney-cruise-line/ships/dream/004087-DCL-Q3_Key-Visual-16x9.jpg?2023-02-07T12%3A44%3A12+00%3A00=",
-      sourceUrl: "https://disneycruise.disney.go.com/special-offers/",
-      headline: "Up to 25% Off Select Sailings",
+      sourceUrl: "https://disneycruise.disney.go.com/special-offers/kids-discount/",
+      headline: "Kids Sail 50% Off with 2 Full-Fare Guests",
       offer:
-        "Disney Cruise Line is featuring savings up to 25% off voyage fare on select sailings, plus other limited offers such as kids fare savings on qualifying itineraries.",
+        "Disney Cruise Line is featuring Together at Sea savings with 50% off voyage fare for up to 3 kids ages 17 and younger when traveling with 2 full-fare Guests in the same stateroom on select sailings.",
       bestFor:
         "Disney families, character experiences, private island stops, and premium family cruising",
-      finePrint: "Select sailings, categories, ships, and eligibility rules apply.",
+      finePrint:
+        "Book by June 14, 2026; select ships, sailings, stateroom categories, and travel dates apply.",
     },
     {
       line: "Virgin Voyages",
       logo: brandLogos.virgin,
       image:
         "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
-      sourceUrl: "https://www.virginvoyages.com/cruise-deals/cruise-vacation-deals",
-      headline: "Up to $1,200 Off + 70% Off 2nd Sailor",
+      sourceUrl: "https://www.virginvoyages.com/cruise-deals",
+      headline: "Up to $400 Onboard Credit + 70% Off 2nd Sailor",
       offer:
-        "Virgin Voyages is featuring Spring Savings with up to $1,200 in instant savings, including 70% off the second Sailor and extra savings on RockStar and Mega RockStar Quarters.",
+        "Virgin Voyages is featuring up to $400 in onboard credit, plus 70% off a second Sailor with instant savings and up to $1,000 instant savings on select 2026–2028 voyages.",
       bestFor:
         "Adults-only escapes, modern ships, nightlife, dining, and no-kids cruising",
       finePrint:
-        "Applies to eligible new bookings, voyages, cabin categories, and dates.",
+        "Promotional deadlines, voyage dates, cabin categories, onboard credit amounts, and terms vary by offer.",
     },
     {
       line: "Viking",
@@ -112,13 +115,13 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.amaWaterways,
       image: amawaterwaysSpecialImage,
       sourceUrl: "https://www.amawaterways.com/offers",
-      headline: "Complimentary Land Package + $599 Airfare",
+      headline: "Memorial Day Offer: Save Up to $2,500 Per Stateroom",
       offer:
-        "AmaWaterways is promoting a complimentary land package on select Europe and Colombia departures, paired with limited-time $599 roundtrip economy airfare on qualifying bookings.",
+        "AmaWaterways is featuring a Memorial Day Offer with savings up to $2,500 per stateroom, a complimentary land package for up to 4 nights, and flights from $599 on select European and Colombian river cruises.",
       bestFor:
-        "Luxury river cruising, Europe, Mekong, Egypt, Africa, and immersive itineraries",
+        "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
       finePrint:
-        "Select departures, destinations, airfare rules, and booking terms apply.",
+        "Select departures, destinations, land package rules, airfare rules, and booking terms apply.",
     },
     {
       line: "Sandals Resorts",
@@ -126,13 +129,13 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://cdn.sandals.com/libs/ui/brands/assets/uploads/specials_widget_summer_loving2_e19e2dbd88.jpg",
       sourceUrl: "https://www.sandals.com/specials/",
-      headline: "Summer Loving Sale",
+      headline: "Suite Deals + Summer Sale Savings",
       offer:
-        "Sandals is featuring its Summer Loving sale with up to $1,000 instant credit, a $175 spa credit, and 1 free night at select adults-only all-inclusive resorts.",
+        "Sandals is featuring limited-time Suite Deals with an additional 7% off on 7 qualifying rooms or suites, plus Summer Sale savings of up to $1,500 off and up to $750 air credit for qualifying summer travel.",
       bestFor:
         "Couples, honeymoons, anniversaries, adults-only luxury, and all-inclusive Caribbean escapes",
       finePrint:
-        "Travel windows, qualifying resorts, room categories, and combinability rules apply.",
+        "Travel windows, qualifying resorts, room categories, suite eligibility, airfare rules, and combinability terms apply.",
     },
     {
       line: "Beaches Resorts",

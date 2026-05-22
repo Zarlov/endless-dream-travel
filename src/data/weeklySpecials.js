@@ -3,6 +3,8 @@ import carnivalSpecialImage from "../assets/specials/carnival-cruise-line.png";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
+export const weeklySpecialsLastUpdated = "May 21, 2026";
+
 export function buildWeeklySpecials(brandLogos) {
   return [
     {

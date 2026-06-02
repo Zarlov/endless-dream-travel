@@ -3,7 +3,7 @@ import carnivalSpecialImage from "../assets/specials/carnival-cruise-line.png";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "May 21, 2026";
+export const weeklySpecialsLastUpdated = "June 1, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
@@ -13,12 +13,13 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://assets.dm.rccl.com/is/image/RoyalCaribbeanCruises/ships-big-time-nav-640-480",
       sourceUrl: "https://www.royalcaribbean.com/cruise-deals",
-      headline: "Up to $850 Off + 3rd & 4th Guests Sail Free",
+      headline: "Up to $900 Off + Kids Sail Free",
       offer:
-        "Royal Caribbean is featuring up to $850 off, 3rd and 4th guests sail free, and up to $100 off longer cruises, alongside its 60% off second guest and Kids Sail Free offer.",
+        "Royal Caribbean is featuring up to $900 off select sailings, 60% off the second guest, and Kids Sail Free on qualifying cruises to the Caribbean, Alaska, Europe, and more.",
       bestFor:
-        "Families, short getaways, Perfect Day at CocoCay, and big-ship experiences",
-      finePrint: "Select sailings, categories, dates, guest counts, and terms apply.",
+        "Families, Perfect Day at CocoCay, Alaska adventures, Europe cruises, and big-ship experiences",
+      finePrint:
+        "Book by June 1, 2026. Select sailings, stateroom categories, departure dates, guest ages, and terms apply. Taxes, fees, gratuities, and port expenses are additional. Important change: family-focused free-guest messaging remains the lead promotion.",
     },
     {
       line: "Norwegian Cruise Line",
@@ -28,22 +29,24 @@ export function buildWeeklySpecials(brandLogos) {
       sourceUrl: "https://www.ncl.com/cruise-deals/free-at-sea",
       headline: "Free at Sea™ Value Package",
       offer:
-        "Norwegian’s Free at Sea™ package includes popular perks such as unlimited open bar, specialty dining, shore excursion credits, and Wi-Fi, with value advertised at more than $2,000 per stateroom.",
+        "Norwegian Cruise Line continues its Free at Sea™ promotion with popular perks such as unlimited open bar, specialty dining, Wi-Fi, and shore excursion credits on qualifying sailings.",
       bestFor:
-        "Flexible dining, families, groups, and relaxed cruise planning",
-      finePrint: "Eligibility, gratuities, dates, and package terms apply.",
+        "Flexible dining, relaxed cruise planning, groups, families, and travelers who like bundled extras",
+      finePrint:
+        "Limited-time ongoing promotion. Inclusions vary by ship, itinerary, sailing, and stateroom category. Package gratuities and service charges may apply. Important change: no major public change from the prior week.",
     },
     {
       line: "Carnival Cruise Line",
       logo: brandLogos.carnival,
       image: carnivalSpecialImage,
       sourceUrl: "https://www.carnival.com/cruise-deals",
-      headline: "Up to 40% Off + Reduced Deposits",
+      headline: "Up to 50% Off + Reduced Deposits",
       offer:
-        "Carnival is featuring limited-time offers that may include up to 40% off cruise rates, 50% off deposits, room upgrades from $1, and up to $50 onboard credit on select sailings.",
+        "Carnival Cruise Line is featuring up to 50% off cruise fares with reduced deposits on select sailings, plus Pack & Go rates for flexible last-minute travelers.",
       bestFor:
-        "Budget-friendly fun, family cruises, quick trips, and casual vacations",
-      finePrint: "Offers vary by sailing and can expire quickly.",
+        "Budget-friendly fun, quick getaways, family cruises, casual vacations, and last-minute escapes",
+      finePrint:
+        "Expiration varies by offer; many current promotions expire mid-May through early June 2026. Select sailings and categories only. Non-refundable deposits may apply. Taxes, fees, and port expenses are additional. Important change: earlier onboard-credit and upgrade-focused offers appear retired from the current cycle.",
     },
     {
       line: "MSC Cruises",
@@ -51,12 +54,67 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://www.msccruisesusa.com/-/media/us/2024/drinks-included-plus-onboard-credit/oc-paddleboarding-group-tile-2x2-desktop.jpg?as=1&bc=transparent&hash=3F5BC7EFAF8112AC5646EA186CDF80E7&mh=465&mw=1245",
       sourceUrl: "https://www.msccruisesusa.com/cruise-deals",
-      headline: "Memorial Day Sale: Up to 40% Off + Kids Sail Free",
+      headline: "Summer Preview Sale + Kids Sail Free",
       offer:
-        "MSC Cruises is featuring a Memorial Day Sale with up to 40% off cruises plus Kids Sail Free on qualifying sailings, along with an extended Cruise from $199 + Kids Sail Free offer to the Caribbean, Alaska, and more.",
+        "MSC Cruises continues its Summer Preview Sale with up to 30% off select cruises plus Kids Sail Free on qualifying sailings. Caribbean and Bahamas itineraries from $199 remain highlighted on select departures.",
       bestFor:
         "Value-focused Caribbean, Bahamas, Europe, Alaska, and family cruising",
-      finePrint: "Select sailings, categories, dates, destinations, and terms apply.",
+      finePrint:
+        "Book by May 18, 2026, where available; dates may vary by market. Kids Sail Free applies to qualifying children sailing as 3rd/4th guests. Taxes and fees still apply. Important change: the $199 Caribbean promotion appears close to rotation.",
+    },
+    {
+      line: "Disney Cruise Line",
+      logo: brandLogos.dcl,
+      image:
+        "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1000/1000/75/vision-dam/digital/parks-platform/parks-global-assets/disney-cruise-line/ships/dream/004087-DCL-Q3_Key-Visual-16x9.jpg?2023-02-07T12%3A44%3A12+00%3A00=",
+      sourceUrl: "https://disneycruise.disney.go.com/special-offers/",
+      headline: "Kids Sail 50% Off",
+      offer:
+        "Disney Cruise Line’s Together at Sea savings allows up to three children ages 17 and under to sail for 50% off with two full-fare Guests in the same stateroom on eligible sailings.",
+      bestFor:
+        "Disney families, character experiences, private island stops, school-break trips, and premium family cruising",
+      finePrint:
+        "Book by June 14, 2026. Valid on select sailings from October 2026 through March 2027. Most stateroom categories qualify except Concierge and Suites. Taxes, fees, gratuities, and Port Adventures are additional. Important change: remains Disney’s headline family promotion.",
+    },
+    {
+      line: "Virgin Voyages",
+      logo: brandLogos.virgin,
+      image:
+        "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
+      sourceUrl: "https://www.virginvoyages.com/promotional-offers-and-discounts",
+      headline: "70% Off Second Sailor + Instant Savings",
+      offer:
+        "Virgin Voyages is featuring 70% off the second Sailor plus up to $1,000 in instant savings on eligible adults-only voyages through 2028.",
+      bestFor:
+        "Adults-only escapes, modern ships, nightlife, elevated dining, and no-kids cruising",
+      finePrint:
+        "Book by May 28, 2026. Savings vary by cabin category and voyage length; select categories may be excluded. Important change: prior RockStar and Mega RockStar bonus savings appear to have expired, reducing peak promotional value.",
+    },
+    {
+      line: "Viking",
+      logo: brandLogos.viking,
+      image: vikingSpecialImage,
+      sourceUrl: "https://www.viking.com/cruise-deals/index.html",
+      headline: "Up to 30% Off + Free Airfare",
+      offer:
+        "Viking continues its Spring Sale with up to 30% off select river, ocean, and expedition voyages plus free airfare and reduced deposits on qualifying departures.",
+      bestFor:
+        "European river cruising, destination-focused ocean cruises, expedition travel, and premium cultural itineraries",
+      finePrint:
+        "Book by May 31, 2026. Select 2026–2028 departures only. Airfare gateways and availability vary by itinerary. Important change: no significant public change identified from the prior week.",
+    },
+    {
+      line: "AmaWaterways",
+      logo: brandLogos.amaWaterways,
+      image: amawaterwaysSpecialImage,
+      sourceUrl: "https://www.amawaterways.com/special-offers",
+      headline: "Complimentary Land Packages + Airfare Savings",
+      offer:
+        "AmaWaterways continues offering complimentary land packages on select Europe and Colombia river cruises, alongside AirPlus airfare offers starting around $599 roundtrip on qualifying departures. Triple Savings offers remain active on select itineraries.",
+      bestFor:
+        "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
+      finePrint:
+        "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable. Important change: complimentary land packages remain the primary featured promotion while regional offers continue rotating.",
     },
     {
       line: "Walt Disney World",
@@ -69,59 +127,6 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Families, Disney fans, holiday trips, special celebrations, and magical park vacations",
       finePrint: "Savings vary by resort, stay length, dates, and eligibility.",
-    },
-    {
-      line: "Disney Cruise Line",
-      logo: brandLogos.dcl,
-      image:
-        "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1000/1000/75/vision-dam/digital/parks-platform/parks-global-assets/disney-cruise-line/ships/dream/004087-DCL-Q3_Key-Visual-16x9.jpg?2023-02-07T12%3A44%3A12+00%3A00=",
-      sourceUrl: "https://disneycruise.disney.go.com/special-offers/kids-discount/",
-      headline: "Kids Sail 50% Off with 2 Full-Fare Guests",
-      offer:
-        "Disney Cruise Line is featuring Together at Sea savings with 50% off voyage fare for up to 3 kids ages 17 and younger when traveling with 2 full-fare Guests in the same stateroom on select sailings.",
-      bestFor:
-        "Disney families, character experiences, private island stops, and premium family cruising",
-      finePrint:
-        "Book by June 14, 2026; select ships, sailings, stateroom categories, and travel dates apply.",
-    },
-    {
-      line: "Virgin Voyages",
-      logo: brandLogos.virgin,
-      image:
-        "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
-      sourceUrl: "https://www.virginvoyages.com/cruise-deals",
-      headline: "Up to $400 Onboard Credit + 70% Off 2nd Sailor",
-      offer:
-        "Virgin Voyages is featuring up to $400 in onboard credit, plus 70% off a second Sailor with instant savings and up to $1,000 instant savings on select 2026–2028 voyages.",
-      bestFor:
-        "Adults-only escapes, modern ships, nightlife, dining, and no-kids cruising",
-      finePrint:
-        "Promotional deadlines, voyage dates, cabin categories, onboard credit amounts, and terms vary by offer.",
-    },
-    {
-      line: "Viking",
-      logo: brandLogos.viking,
-      image: vikingSpecialImage,
-      sourceUrl: "https://www.viking.com/",
-      headline: "Spring Sale: Up to 30% Off + Free Airfare",
-      offer:
-        "Viking is promoting a Spring Sale with up to 30% off, free airfare, and a $25 deposit on select 2026–2028 river, ocean, and expedition voyages.",
-      bestFor:
-        "European river cruising, destination-focused ocean cruises, and premium cultural travel",
-      finePrint: "Offer expires May 31, 2026; select itineraries and terms apply.",
-    },
-    {
-      line: "AmaWaterways",
-      logo: brandLogos.amaWaterways,
-      image: amawaterwaysSpecialImage,
-      sourceUrl: "https://www.amawaterways.com/offers",
-      headline: "Memorial Day Offer: Save Up to $2,500 Per Stateroom",
-      offer:
-        "AmaWaterways is featuring a Memorial Day Offer with savings up to $2,500 per stateroom, a complimentary land package for up to 4 nights, and flights from $599 on select European and Colombian river cruises.",
-      bestFor:
-        "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
-      finePrint:
-        "Select departures, destinations, land package rules, airfare rules, and booking terms apply.",
     },
     {
       line: "Sandals Resorts",

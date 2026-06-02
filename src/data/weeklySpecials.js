@@ -13,13 +13,13 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://assets.dm.rccl.com/is/image/RoyalCaribbeanCruises/ships-big-time-nav-640-480",
       sourceUrl: "https://www.royalcaribbean.com/cruise-deals",
-      headline: "Up to $900 Off + Kids Sail Free",
+      headline: "Up to $900 Off + 3rd & 4th Guests Sail Free",
       offer:
-        "Royal Caribbean is featuring up to $900 off select sailings, 60% off the second guest, and Kids Sail Free on qualifying cruises to the Caribbean, Alaska, Europe, and more.",
+        "Royal Caribbean is currently highlighting an extended cruise-deals offer with up to $900 off, 3rd and 4th guests sail free, 60% off the second guest, Kids Sail Free, and bonus savings on short getaways.",
       bestFor:
         "Families, Perfect Day at CocoCay, Alaska adventures, Europe cruises, and big-ship experiences",
       finePrint:
-        "Book by June 1, 2026. Select sailings, stateroom categories, departure dates, guest ages, and terms apply. Taxes, fees, gratuities, and port expenses are additional. Important change: family-focused free-guest messaging remains the lead promotion.",
+        "Extended limited-time offer. Select sailings, stateroom categories, departure dates, guest ages, and terms apply. Taxes, fees, gratuities, and port expenses are additional. Updated to remove a same-day June 1 expiration from the prior posting.",
     },
     {
       line: "Norwegian Cruise Line",
@@ -29,24 +29,24 @@ export function buildWeeklySpecials(brandLogos) {
       sourceUrl: "https://www.ncl.com/cruise-deals/free-at-sea",
       headline: "Free at Sea™ Value Package",
       offer:
-        "Norwegian Cruise Line continues its Free at Sea™ promotion with popular perks such as unlimited open bar, specialty dining, Wi-Fi, and shore excursion credits on qualifying sailings.",
+        "Norwegian Cruise Line continues its Free at Sea™ promotion with popular perks such as unlimited open bar, specialty dining, Wi-Fi, and shore excursion credits on qualifying sailings. Select sailings may also include free airfare for the second guest or free 3rd and 4th guests.",
       bestFor:
         "Flexible dining, relaxed cruise planning, groups, families, and travelers who like bundled extras",
       finePrint:
-        "Limited-time ongoing promotion. Inclusions vary by ship, itinerary, sailing, and stateroom category. Package gratuities and service charges may apply. Important change: no major public change from the prior week.",
+        "Ongoing limited-time promotion. Inclusions vary by ship, itinerary, sailing, and stateroom category. Package gratuities and service charges may apply.",
     },
     {
       line: "Carnival Cruise Line",
       logo: brandLogos.carnival,
       image: carnivalSpecialImage,
       sourceUrl: "https://www.carnival.com/cruise-deals",
-      headline: "Up to 50% Off + Reduced Deposits",
+      headline: "Current Cruise Deals + Pack & Go Rates",
       offer:
-        "Carnival Cruise Line is featuring up to 50% off cruise fares with reduced deposits on select sailings, plus Pack & Go rates for flexible last-minute travelers.",
+        "Carnival Cruise Line continues to feature rotating cruise deals for 2026–2028 sailings, including limited-time fare savings, reduced-deposit offers, and Pack & Go rates for flexible last-minute travelers.",
       bestFor:
         "Budget-friendly fun, quick getaways, family cruises, casual vacations, and last-minute escapes",
       finePrint:
-        "Expiration varies by offer; many current promotions expire mid-May through early June 2026. Select sailings and categories only. Non-refundable deposits may apply. Taxes, fees, and port expenses are additional. Important change: earlier onboard-credit and upgrade-focused offers appear retired from the current cycle.",
+        "Offer dates, savings, deposits, and eligibility vary by sailing and category. Taxes, fees, and port expenses are additional. Updated to avoid relying on older mid-May promotional language.",
     },
     {
       line: "MSC Cruises",
@@ -54,13 +54,13 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://www.msccruisesusa.com/-/media/us/2024/drinks-included-plus-onboard-credit/oc-paddleboarding-group-tile-2x2-desktop.jpg?as=1&bc=transparent&hash=3F5BC7EFAF8112AC5646EA186CDF80E7&mh=465&mw=1245",
       sourceUrl: "https://www.msccruisesusa.com/cruise-deals",
-      headline: "Summer Preview Sale + Kids Sail Free",
+      headline: "Last-Minute Deals + Drinks & Wi‑Fi Included",
       offer:
-        "MSC Cruises continues its Summer Preview Sale with up to 30% off select cruises plus Kids Sail Free on qualifying sailings. Caribbean and Bahamas itineraries from $199 remain highlighted on select departures.",
+        "MSC Cruises is currently listing last-minute cruise deals from $297, early-booking options for 2026–2027 cruises, and an Add Now & Save offer with drinks and Wi‑Fi included on select sailings.",
       bestFor:
-        "Value-focused Caribbean, Bahamas, Europe, Alaska, and family cruising",
+        "Value-focused Caribbean, Bahamas, Europe, Alaska, last-minute escapes, and family cruising",
       finePrint:
-        "Book by May 18, 2026, where available; dates may vary by market. Kids Sail Free applies to qualifying children sailing as 3rd/4th guests. Taxes and fees still apply. Important change: the $199 Caribbean promotion appears close to rotation.",
+        "Select sailings, categories, destinations, packages, and terms apply. Taxes and fees still apply. Updated to replace the expired May 18 / June 1 sale messaging with offers currently shown on MSC’s deals page.",
     },
     {
       line: "Disney Cruise Line",
@@ -74,7 +74,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Disney families, character experiences, private island stops, school-break trips, and premium family cruising",
       finePrint:
-        "Book by June 14, 2026. Valid on select sailings from October 2026 through March 2027. Most stateroom categories qualify except Concierge and Suites. Taxes, fees, gratuities, and Port Adventures are additional. Important change: remains Disney’s headline family promotion.",
+        "Book by June 14, 2026. Valid on select sailings from October 2026 through March 2027. Most stateroom categories qualify except Concierge and Suites. Taxes, fees, gratuities, and Port Adventures are additional.",
     },
     {
       line: "Virgin Voyages",
@@ -82,39 +82,39 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
       sourceUrl: "https://www.virginvoyages.com/promotional-offers-and-discounts",
-      headline: "70% Off Second Sailor + Instant Savings",
+      headline: "Adults-Only Cruise Deals",
       offer:
-        "Virgin Voyages is featuring 70% off the second Sailor plus up to $1,000 in instant savings on eligible adults-only voyages through 2028.",
+        "Virgin Voyages continues to feature rotating adults-only cruise promotions on select voyages, with savings commonly focused on the second Sailor, instant savings, onboard value, and seasonal destination launches.",
       bestFor:
         "Adults-only escapes, modern ships, nightlife, elevated dining, and no-kids cruising",
       finePrint:
-        "Book by May 28, 2026. Savings vary by cabin category and voyage length; select categories may be excluded. Important change: prior RockStar and Mega RockStar bonus savings appear to have expired, reducing peak promotional value.",
+        "Offer amounts, booking deadlines, voyage dates, cabin categories, and exclusions change frequently. Updated to remove the expired May 28 promotion and use current rotating-offer language until a new fixed-date public offer is confirmed.",
     },
     {
       line: "Viking",
       logo: brandLogos.viking,
       image: vikingSpecialImage,
       sourceUrl: "https://www.viking.com/cruise-deals/index.html",
-      headline: "Up to 30% Off + Free Airfare",
+      headline: "Current Viking Cruise Deals",
       offer:
-        "Viking continues its Spring Sale with up to 30% off select river, ocean, and expedition voyages plus free airfare and reduced deposits on qualifying departures.",
+        "Viking continues to promote rotating river, ocean, and expedition cruise deals, which may include airfare offers, reduced deposits, and special savings on select 2026–2028 departures.",
       bestFor:
         "European river cruising, destination-focused ocean cruises, expedition travel, and premium cultural itineraries",
       finePrint:
-        "Book by May 31, 2026. Select 2026–2028 departures only. Airfare gateways and availability vary by itinerary. Important change: no significant public change identified from the prior week.",
+        "Offer details, air gateways, deposits, departure dates, and combinability vary by itinerary. Updated to remove the expired May 31 Spring Sale language.",
     },
     {
       line: "AmaWaterways",
       logo: brandLogos.amaWaterways,
       image: amawaterwaysSpecialImage,
       sourceUrl: "https://www.amawaterways.com/special-offers",
-      headline: "Complimentary Land Packages + Airfare Savings",
+      headline: "Current River Cruise Special Offers",
       offer:
-        "AmaWaterways continues offering complimentary land packages on select Europe and Colombia river cruises, alongside AirPlus airfare offers starting around $599 roundtrip on qualifying departures. Triple Savings offers remain active on select itineraries.",
+        "AmaWaterways continues to feature rotating river cruise offers, including savings on select Europe and Colombia departures, air promotions, land-package values, and itinerary-specific incentives.",
       bestFor:
         "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
       finePrint:
-        "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable. Important change: complimentary land packages remain the primary featured promotion while regional offers continue rotating.",
+        "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable. Updated to use safer current-offer language rather than a single date-sensitive Memorial Day offer.",
     },
     {
       line: "Walt Disney World",

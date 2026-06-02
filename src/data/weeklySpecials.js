@@ -19,7 +19,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Families, Perfect Day at CocoCay, Alaska adventures, Europe cruises, and big-ship experiences",
       finePrint:
-        "Extended limited-time offer. Select sailings, stateroom categories, departure dates, guest ages, and terms apply. Taxes, fees, gratuities, and port expenses are additional. Updated to remove a same-day June 1 expiration from the prior posting.",
+        "Extended limited-time offer. Select sailings, stateroom categories, departure dates, guest ages, and terms apply. Taxes, fees, gratuities, and port expenses are additional.",
     },
     {
       line: "Norwegian Cruise Line",
@@ -46,7 +46,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Budget-friendly fun, quick getaways, family cruises, casual vacations, and last-minute escapes",
       finePrint:
-        "Offer dates, savings, deposits, and eligibility vary by sailing and category. Taxes, fees, and port expenses are additional. Updated to avoid relying on older mid-May promotional language.",
+        "Offer dates, savings, deposits, and eligibility vary by sailing and category. Taxes, fees, and port expenses are additional.",
     },
     {
       line: "MSC Cruises",
@@ -60,7 +60,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Value-focused Caribbean, Bahamas, Europe, Alaska, last-minute escapes, and family cruising",
       finePrint:
-        "Select sailings, categories, destinations, packages, and terms apply. Taxes and fees still apply. Updated to replace the expired May 18 / June 1 sale messaging with offers currently shown on MSC’s deals page.",
+        "Select sailings, categories, destinations, packages, and terms apply. Taxes and fees still apply.",
     },
     {
       line: "Disney Cruise Line",
@@ -88,7 +88,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Adults-only escapes, modern ships, nightlife, elevated dining, and no-kids cruising",
       finePrint:
-        "Offer amounts, booking deadlines, voyage dates, cabin categories, and exclusions change frequently. Updated to remove the expired May 28 promotion and use current rotating-offer language until a new fixed-date public offer is confirmed.",
+        "Offer amounts, booking deadlines, voyage dates, cabin categories, and exclusions change frequently.",
     },
     {
       line: "Viking",
@@ -101,7 +101,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "European river cruising, destination-focused ocean cruises, expedition travel, and premium cultural itineraries",
       finePrint:
-        "Offer details, air gateways, deposits, departure dates, and combinability vary by itinerary. Updated to remove the expired May 31 Spring Sale language.",
+        "Offer details, air gateways, deposits, departure dates, and combinability vary by itinerary.",
     },
     {
       line: "AmaWaterways",
@@ -114,7 +114,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
       finePrint:
-        "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable. Updated to use safer current-offer language rather than a single date-sensitive Memorial Day offer.",
+        "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable.",
     },
     {
       line: "Walt Disney World",

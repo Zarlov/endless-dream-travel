@@ -77,6 +77,19 @@ export function buildWeeklySpecials(brandLogos) {
         "Book by June 14, 2026. Valid on select sailings from October 2026 through March 2027. Most stateroom categories qualify except Concierge and Suites. Taxes, fees, gratuities, and Port Adventures are additional.",
     },
     {
+      line: "Walt Disney World",
+      logo: brandLogos.disneyWorld,
+      image: disneyWorldSpecialImage,
+      sourceUrl: "https://disneyworld.disney.go.com/special-offers/",
+      headline: "Can’t-Miss Offers for Summer 2026",
+      offer:
+        "Walt Disney World is featuring vacation savings for summer and early fall, including room discounts at select Disney Resorts Collection hotels, a 4-Day, 4-Park Magic Ticket starting at $109 per day plus tax, Disney+ Perks room offers, and free dining plans for kids ages 3 to 9 with qualifying 2026 packages.",
+      bestFor:
+        "Disney families, theme park vacations, resort stays, ticket savings, dining plans, and summer getaways",
+      finePrint:
+        "Select rooms, resorts, tickets, packages, arrival dates, start dates, and eligibility requirements apply. Savings and availability vary by offer. Tickets, taxes, dining-plan rules, and package terms apply.",
+    },
+    {
       line: "Virgin Voyages",
       logo: brandLogos.virgin,
       image:

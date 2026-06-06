@@ -84,7 +84,7 @@ export function buildWeeklySpecials(brandLogos) {
       sourceUrl: "https://www.virginvoyages.com/promotional-offers-and-discounts",
       headline: "Adults-Only Cruise Deals",
       offer:
-        "Virgin Voyages continues to feature rotating adults-only cruise promotions on select voyages, with savings commonly focused on the second Sailor, instant savings, onboard value, and seasonal destination launches.",
+        "Virgin Voyages is featuring adults-only cruise savings with rotating offers on select Caribbean, Mediterranean, and transatlantic voyages, including second Sailor discounts and instant savings.",
       bestFor:
         "Adults-only escapes, modern ships, nightlife, elevated dining, and no-kids cruising",
       finePrint:

@@ -87,7 +87,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Disney families, theme park vacations, resort stays, ticket savings, dining plans, and summer getaways",
       finePrint:
-        "Select rooms, resorts, tickets, packages, arrival dates, start dates, and eligibility requirements apply. Savings and availability vary by offer. Tickets, taxes, dining-plan rules, and package terms apply.",
+        "Select rooms, resorts, tickets, packages, arrival dates, and eligibility requirements apply. Savings and availability vary by offer. Taxes, dining-plan rules, and package terms apply.",
     },
     {
       line: "Virgin Voyages",

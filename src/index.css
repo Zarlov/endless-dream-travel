@@ -4,3 +4,15 @@
 .bg-red-100.text-red-900 {
   display: none !important;
 }
+
+/* Give the primary header logo more brand presence without affecting footer/hero logos. */
+nav a[href="#top"] img[alt="Endless Dream Travel logo"] {
+  height: 4rem !important;
+  width: auto !important;
+}
+
+@media (min-width: 640px) {
+  nav a[href="#top"] img[alt="Endless Dream Travel logo"] {
+    height: 5.25rem !important;
+  }
+}

@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+/* Hide the internal content-check banner from the public site. */
+.bg-red-100.text-red-900 {
+  display: none !important;
+}

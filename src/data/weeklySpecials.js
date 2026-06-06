@@ -94,7 +94,8 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.virgin,
       image:
         "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
-      sourceUrl: "https://www.virginvoyages.com/promotional-offers-and-discounts",
+      sourceUrl:
+        "https://www.virginvoyages.com/book/voyage-planner/find-a-voyage?cabins=1&currencyCode=USD&agentId=140046&agencyId=31527&bookingChannel=FMLINK",
       headline: "Adults-Only Cruise Deals",
       offer:
         "Virgin Voyages is featuring adults-only cruise savings with rotating offers on select Caribbean, Mediterranean, and transatlantic voyages, including second Sailor discounts and instant savings.",

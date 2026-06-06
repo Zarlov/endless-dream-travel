@@ -3,7 +3,7 @@ import carnivalSpecialImage from "../assets/specials/carnival-cruise-line.png";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "June 1, 2026";
+export const weeklySpecialsLastUpdated = "June 6, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
@@ -115,46 +115,6 @@ export function buildWeeklySpecials(brandLogos) {
         "Luxury river cruising, Europe, Colombia, immersive itineraries, and pre- or post-cruise land stays",
       finePrint:
         "Book-by dates vary by itinerary and promotion. Select departures and gateways only. Promotions may not be combinable.",
-    },
-    {
-      line: "Walt Disney World",
-      logo: brandLogos.disneyWorld,
-      image: disneyWorldSpecialImage,
-      sourceUrl: "https://disneyworld.disney.go.com/special-offers/",
-      headline: "Save Up to 30% on Rooms This Summer",
-      offer:
-        "Walt Disney World is featuring savings of up to 30% on rooms at select Disney Resorts Collection hotels for qualifying summer 2026 stays, with additional passholder and dining-related offers available.",
-      bestFor:
-        "Families, Disney fans, holiday trips, special celebrations, and magical park vacations",
-      finePrint: "Savings vary by resort, stay length, dates, and eligibility.",
-    },
-    {
-      line: "Sandals Resorts",
-      logo: brandLogos.sandals,
-      image:
-        "https://cdn.sandals.com/libs/ui/brands/assets/uploads/specials_widget_summer_loving2_e19e2dbd88.jpg",
-      sourceUrl: "https://www.sandals.com/specials/",
-      headline: "Suite Deals + Summer Sale Savings",
-      offer:
-        "Sandals is featuring limited-time Suite Deals with an additional 7% off on 7 qualifying rooms or suites, plus Summer Sale savings of up to $1,500 off and up to $750 air credit for qualifying summer travel.",
-      bestFor:
-        "Couples, honeymoons, anniversaries, adults-only luxury, and all-inclusive Caribbean escapes",
-      finePrint:
-        "Travel windows, qualifying resorts, room categories, suite eligibility, airfare rules, and combinability terms apply.",
-    },
-    {
-      line: "Beaches Resorts",
-      logo: brandLogos.beaches,
-      image:
-        "https://cdn.sandals.com/libs/ui/brands/assets/uploads/ffj_specials_card_585894edfb.jpg",
-      sourceUrl: "https://www.beaches.com/deals/",
-      headline: "Fall Fam Jam",
-      offer:
-        "Beaches is featuring Fall Fam Jam with a free Sesame Street® character breakfast and yoga, a $175 spa credit, and 1 free night on qualifying Beaches vacations.",
-      bestFor:
-        "Families, multi-generation trips, kids clubs, water parks, and all-inclusive Caribbean vacations",
-      finePrint:
-        "Travel dates, resort eligibility, room categories, and offer terms apply.",
     },
   ];
 }

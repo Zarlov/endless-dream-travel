@@ -120,7 +120,7 @@ export function buildWeeklySpecials(brandLogos) {
       line: "AmaWaterways",
       logo: brandLogos.amaWaterways,
       image: amawaterwaysSpecialImage,
-      sourceUrl: "https://www.amawaterways.com/special-offers",
+      sourceUrl: "https://www.amawaterways.com/agent/endlessdreamtravel",
       headline: "Current River Cruise Special Offers",
       offer:
         "AmaWaterways continues to feature rotating river cruise offers, including savings on select Europe and Colombia departures, air promotions, land-package values, and itinerary-specific incentives.",

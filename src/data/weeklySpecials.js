@@ -3,7 +3,7 @@ import carnivalSpecialImage from "../assets/specials/carnival-cruise-line.png";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "July 18, 2026";
+export const weeklySpecialsLastUpdated = "July 20, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
@@ -13,27 +13,27 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://assets.dm.rccl.com/is/image/RoyalCaribbeanCruises/ships-big-time-nav-640-480",
       sourceUrl: "https://www.royalcaribbean.com/cruise-deals",
-      headline: "Up to $850 Off + 3rd & 4th Guests Sail Free",
+      headline: "60% Off 2nd Guest + 3rd & 4th Guests Sail Free",
       offer:
-        "Royal Caribbean is featuring up to $850 off, 60% off the second guest, 3rd and 4th guests sail free on eligible cruises, and up to an extra $100 off select 2026 Caribbean sailings.",
+        "Royal Caribbean is featuring 60% off the second guest, plus free cruise fare for 3rd and 4th guests and Kids Sail Free on eligible cruises.",
       bestFor:
         "Families, Perfect Day at CocoCay, Caribbean getaways, Alaska, Europe, and big-ship experiences",
       finePrint:
-        "The current BOGO60 booking window runs through August 3, 2026. Savings, free-guest eligibility, extra 2026 discounts, sailings, staterooms, and blackout dates vary. Taxes, fees, gratuities, and port expenses are additional.",
+        "Book by August 3, 2026. Free 3rd and 4th guest cruise fare applies to select sailings through August 20, 2027. Kids Sail Free applies to children age 12 and younger on select cruises of 3 nights or longer, with extensive blackout dates. Taxes, fees, gratuities, and port expenses are additional.",
     },
     {
       line: "Norwegian Cruise Line",
       logo: brandLogos.ncl,
       image:
         "https://www.ncl.com/adobe/dynamicmedia/deliver/dm-aid--ff161251-4f98-4e8f-ae0f-253233c1a171/ncl-encore-waterfront-dining.jpg?preferwebp=true&quality=100",
-      sourceUrl: "https://www.ncl.com/cruise-deals/semi-annual-sale",
-      headline: "50% Off Cruises + Free Prepaid Gratuities",
+      sourceUrl: "https://www.ncl.com/cruise-deals/promotion-terms.html",
+      headline: "Free at Sea + 2nd Guest Flies Free",
       offer:
-        "NCL's first Semi-Annual Sale offers 50% off cruises through February 2028, plus free prepaid gratuities on nearly 800 select sailings when booking a Balcony stateroom or above. Free at Sea™ can add drinks, specialty dining, Wi-Fi, and shore-excursion credits.",
+        "NCL's current value offers include Free at Sea™ selections such as drinks, specialty dining, Wi-Fi, and shore-excursion credits, plus free airfare for the second guest on qualifying cruises of four nights or longer.",
       bestFor:
-        "Balcony and Haven bookings, clients who value bundled perks, families, groups, and 2026–2028 planning",
+        "Clients who value bundled perks, fly-cruise vacations, families, groups, and flexible future planning",
       finePrint:
-        "Limited-time sale scheduled through July 20, 2026, while supplies last. Free prepaid gratuities apply only to qualifying sailings and Balcony-or-higher categories. Free at Sea package gratuities, eligibility, airfare, and 3rd/4th guest offers vary.",
+        "The second-guest airfare offer is capacity-controlled and applies only to select destinations and sailings of 4 nights or longer. Stateroom exclusions, gateway rules, package charges, Free at Sea eligibility, and combinability vary. Confirm the live fare and terms before booking.",
     },
     {
       line: "Carnival Cruise Line",
@@ -98,11 +98,11 @@ export function buildWeeklySpecials(brandLogos) {
         "https://www.virginvoyages.com/book/voyage-planner/find-a-voyage?cabins=1&currencyCode=USD&agentId=140046&agencyId=31527&bookingChannel=FMLINK",
       headline: "70% Off 2nd Sailor + Free Balcony Upgrade",
       offer:
-        "Virgin Voyages' summer sale includes 70% off the second Sailor and a free balcony upgrade on select voyages. Eligible fall and winter Caribbean bookings can also receive up to $300 in onboard credit: $50 for Sea Terraces or $300 for Rockstar Suites.",
+        "Virgin Voyages' summer sale includes 70% off the second Sailor and a complimentary upgrade from a Sea View cabin to an eligible limited-view or slightly smaller Sea Terrace on select voyages.",
       bestFor:
         "Adults-only Caribbean holidays, couples, modern dining, included Wi-Fi and fitness, Sea Terraces, and Rockstar Suites",
       finePrint:
-        "The Caribbean onboard-credit offer is scheduled to end July 21, 2026, and applies to eligible voyages from September 19, 2026, through April 28, 2027. Cabin, voyage, combinability, and Lock It In Rate restrictions apply.",
+        "Book by July 31, 2026. The percentage discount is limited to eligible cabin categories, and the balcony upgrade requires booking directly into the qualifying Sea Terrace category. Voyage, fare, group, combinability, and Lock It In Rate restrictions apply.",
     },
     {
       line: "Viking",
@@ -134,25 +134,25 @@ export function buildWeeklySpecials(brandLogos) {
       line: "Sandals Resorts",
       logo: brandLogos.sandals,
       sourceUrl: "https://www.sandals.com/specials/",
-      headline: "Black Friday in July: Up to 65% Off",
+      headline: "1 Free Night + $100 Booking Bonus",
       offer:
-        "Sandals' Black Friday in July sale features up to 65% off, up to $1,650 in resort credits, up to $750 in air credit, and 0% financing through Flex Pay on eligible stays. Weekly 7-7-7 Suite Deals can add 7% off seven selected rooms and suites for seven days.",
+        "Sandals is offering one free night on qualifying stays of seven or more paid nights at select resorts and room categories. New website, travel-advisor portal, and call-center bookings can also receive a $100 bonus for eligible travel through September 30, 2026.",
       bestFor:
-        "Adults-only all-inclusive escapes, honeymoons, anniversaries, Caribbean couples trips, and clients ready to book quickly",
+        "Adults-only all-inclusive escapes, honeymoons, anniversaries, longer Caribbean stays, and fall travel",
       finePrint:
-        "Limited-time promotion. Resort credits, air credits, free nights, financing, room categories, travel dates, registration requirements, and combinability vary by resort and booking. Confirm the live offer before quoting.",
+        "The one-free-night offer is listed for travel until further notice and requires 7+ paid nights in qualifying room categories at select resorts. The $100 booking bonus applies to new bookings made from June 9, 2026 until further notice for travel July 1–September 30, 2026. Offers may change or be withdrawn.",
     },
     {
       line: "Beaches Resorts",
       logo: brandLogos.beaches,
       sourceUrl: "https://www.beaches.com/deals/",
-      headline: "Black Friday in July: Family Savings Up to 65% Off",
+      headline: "1 Free Night + $100 Booking Bonus",
       offer:
-        "Beaches' Black Friday in July sale features savings up to 65%, up to $1,150 in credits, and up to $750 in air credit on eligible family resort stays. Current 7-7-7 Suite Deals add 7% off seven selected room categories for seven days.",
+        "Beaches is offering one free night on qualifying stays of six or more paid nights at Beaches Negril. New website, travel-advisor portal, and call-center bookings can also receive a $100 bonus on eligible bookings.",
       bestFor:
-        "Caribbean family vacations, multi-generational trips, Turks & Caicos, Jamaica, Sesame Street experiences, and all-inclusive ease",
+        "Caribbean family vacations, multi-generational trips, longer Jamaica stays, Sesame Street experiences, and all-inclusive ease",
       finePrint:
-        "The current 7-7-7 booking window runs July 15–21, 2026; travel dates and room categories vary. Black Friday in July benefits, credits, free nights, and combinability depend on resort, room, booking, and travel dates.",
+        "The one-free-night offer is listed for travel until further notice, requires 6+ paid nights at Beaches Negril, and is not combinable with last-minute deals. The $100 booking bonus is listed for new qualifying bookings until further notice. Offers are subject to availability and may be withdrawn.",
     },
   ];
 }

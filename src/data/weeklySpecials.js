@@ -83,7 +83,7 @@ export function buildWeeklySpecials(brandLogos) {
     },
     {
       line: "Adventures by Disney",
-      logo: { name: "Adventures by Disney" },
+      logo: brandLogos.adventuresDisney,
       image: adventuresByDisneySpecialImage,
       sourceUrl:
         "https://www.adventuresbydisney.com/special-offers/rhone-river-cruise-special-offer/",

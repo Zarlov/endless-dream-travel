@@ -20,6 +20,7 @@ import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
 import exploraMandala from "./assets/brands/explora-mandala.svg";
+import adventuresByDisneyLogo from "./assets/brands/adventures-by-disney.svg";
 
 import {
   buildWeeklySpecials,
@@ -100,6 +101,10 @@ const brandLogos = {
     name: "Explora Journeys",
     src: exploraMandala,
     showName: true,
+  },
+  adventuresDisney: {
+    name: "Adventures by Disney",
+    src: adventuresByDisneyLogo,
   },
 };
 
@@ -270,7 +275,7 @@ function IconBadge({ icon: Icon, children, variant = "light" }) {
 
 function LogoBadge({ logo, size = "normal" }) {
   const sizeClass =
-    size === "large" ? "h-16 min-w-40 px-5" : "h-12 min-w-28 px-4";
+    size === "large" ? "h-16 w-44 px-5" : "h-12 w-36 px-4";
 
   return (
     <div
@@ -282,7 +287,7 @@ function LogoBadge({ logo, size = "normal" }) {
           <img
             src={logo.src}
             alt={`${logo.name} logo`}
-            className={logo.showName ? "h-8 w-8 object-contain" : "max-h-9 max-w-[9rem] object-contain"}
+            className={logo.showName ? "h-8 w-8 object-contain" : "max-h-8 max-w-full object-contain"}
           />
           {logo.showName && (
             <span className="max-w-[7rem] text-left text-[0.62rem] font-black uppercase leading-tight tracking-[0.14em] text-[#1F1B1D]">

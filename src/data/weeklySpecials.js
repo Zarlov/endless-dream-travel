@@ -1,6 +1,9 @@
 import amawaterwaysSpecialImage from "../assets/specials/amawaterways.jpg";
+import adventuresByDisneySpecialImage from "../assets/specials/adventures-by-disney-rhone.webp";
+import beachesSpecialImage from "../assets/specials/beaches-resort.webp";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import exploraSpecialImage from "../assets/specials/explora-journeys.webp";
+import sandalsSpecialImage from "../assets/specials/sandals-resort.webp";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
 export const weeklySpecialsLastUpdated = "August 3, 2026";
@@ -81,6 +84,7 @@ export function buildWeeklySpecials(brandLogos) {
     {
       line: "Adventures by Disney",
       logo: { name: "Adventures by Disney" },
+      image: adventuresByDisneySpecialImage,
       sourceUrl:
         "https://www.adventuresbydisney.com/special-offers/rhone-river-cruise-special-offer/",
       headline: "Save $400 Per Person on the Rhône",
@@ -139,6 +143,7 @@ export function buildWeeklySpecials(brandLogos) {
     {
       line: "Sandals Resorts",
       logo: brandLogos.sandals,
+      image: sandalsSpecialImage,
       sourceUrl: "https://www.sandals.com/specials/",
       headline: "Up to 65% Off + Resort & Air Credits",
       offer:
@@ -151,6 +156,7 @@ export function buildWeeklySpecials(brandLogos) {
     {
       line: "Beaches Resorts",
       logo: brandLogos.beaches,
+      image: beachesSpecialImage,
       sourceUrl: "https://www.beaches.com/deals/",
       headline: "Up to 65% Off + Resort & Air Credits",
       offer:

@@ -8,7 +8,7 @@ import iconLogo from "./assets/logos/logo-icon.png";
 import shipLogo from "./assets/logos/logo-ship.png";
 import credentialsGraphic from "./assets/credentials/credentials-graphic.png";
 
-import disneyWorldLogo from "./assets/brands/disney-world.svg";
+import disneyWorldLogo from "./assets/brands/disney-world-logo.png";
 import rcclLogo from "./assets/brands/rccl.png";
 import dclLogo from "./assets/brands/dcl.png";
 import nclLogo from "./assets/brands/ncl.png";

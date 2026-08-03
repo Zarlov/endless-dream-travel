@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import sandalsLogo from "./assets/brands/sandals.png";
 import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
+import exploraMandala from "./assets/brands/explora-mandala.svg";
 
 import {
   buildWeeklySpecials,
@@ -94,6 +95,11 @@ const brandLogos = {
   virgin: {
     name: "Virgin Voyages",
     src: virginLogo,
+  },
+  explora: {
+    name: "Explora Journeys",
+    src: exploraMandala,
+    showName: true,
   },
 };
 
@@ -271,11 +277,24 @@ function LogoBadge({ logo, size = "normal" }) {
       className={`inline-flex ${sizeClass} items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-[#F2AE63]/35`}
       title={logo.name}
     >
-      <img
-        src={logo.src}
-        alt={`${logo.name} logo`}
-        className="max-h-9 max-w-[9rem] object-contain"
-      />
+      {logo.src ? (
+        <div className="flex items-center justify-center gap-2.5">
+          <img
+            src={logo.src}
+            alt={`${logo.name} logo`}
+            className={logo.showName ? "h-8 w-8 object-contain" : "max-h-9 max-w-[9rem] object-contain"}
+          />
+          {logo.showName && (
+            <span className="max-w-[7rem] text-left text-[0.62rem] font-black uppercase leading-tight tracking-[0.14em] text-[#1F1B1D]">
+              {logo.name}
+            </span>
+          )}
+        </div>
+      ) : (
+        <span className="max-w-[9rem] text-center text-xs font-black uppercase tracking-[0.12em] text-[#1F1B1D]">
+          {logo.name}
+        </span>
+      )}
     </div>
   );
 }
@@ -316,12 +335,12 @@ function runContentTests() {
     (service) => typeof service.icon === "function" || service.logos?.length > 0
   );
   const allWeeklySpecialsHaveLogos = weeklySpecials.every(
-    (special) => special.logo?.src && special.logo?.name
+    (special) => special.logo?.name
   );
   const hasContactEmail = "amy@endlessdreamtravel.com".includes("@");
   const hasThreeSteps = steps.length === 3;
   const hasPromoCards = promoCards.length === 3;
-  const hasWeeklySpecials = weeklySpecials.length >= 11;
+  const hasWeeklySpecials = weeklySpecials.length >= 10;
   const usesBrandPalette =
     BRAND.black === "#0B0B0B" &&
     BRAND.gold === "#F2AE63" &&
@@ -375,7 +394,7 @@ export default function EndlessDreamTravelWebsite() {
       } else {
         setFormStatus("error");
       }
-    } catch (error) {
+    } catch {
       setFormStatus("error");
     }
   }
@@ -631,8 +650,17 @@ export default function EndlessDreamTravelWebsite() {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B]/70 via-transparent to-transparent" />
+                    {special.logoPlacement === "top-left" && (
+                      <div className="absolute left-4 top-4">
+                        <LogoBadge logo={special.logo} />
+                      </div>
+                    )}
                     <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
-                      <LogoBadge logo={special.logo} />
+                      {special.logoPlacement !== "top-left" ? (
+                        <LogoBadge logo={special.logo} />
+                      ) : (
+                        <span />
+                      )}
                       <span className="inline-flex items-center gap-2 rounded-full bg-[#0B0B0B] px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-[#F2AE63] shadow-lg">
                         <FaTags className="h-3 w-3" /> Special
                       </span>

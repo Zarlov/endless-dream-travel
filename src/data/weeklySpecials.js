@@ -3,10 +3,11 @@ import adventuresByDisneySpecialImage from "../assets/specials/adventures-by-dis
 import beachesSpecialImage from "../assets/specials/beaches-resort.webp";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import exploraSpecialImage from "../assets/specials/explora-journeys.webp";
+import mscSpecialImage from "../assets/specials/msc-family-cruise.webp";
 import sandalsSpecialImage from "../assets/specials/sandals-resort.webp";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "August 3, 2026";
+export const weeklySpecialsLastUpdated = "August 10, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
@@ -52,19 +53,33 @@ export function buildWeeklySpecials(brandLogos) {
         "Book by August 25, 2026. Valid on new reservations in eligible suite categories and select journeys. World Journey 2029, Monaco Grand Prix journeys, net fares, and certain promotional programs are excluded.",
     },
     {
+      line: "MSC Cruises",
+      logo: brandLogos.msc,
+      image: mscSpecialImage,
+      sourceUrl:
+        "https://www.msccruisesusa.com/cruise-deals/promo-terms-and-conditions",
+      headline: "Up to 35% Off + Up to $500 Onboard Credit",
+      offer:
+        "Save up to 35% on select cruises, receive up to $500 in onboard credit, and let eligible kids sail free as third or fourth guests. A separate Europe offer provides up to $600 off select sailings.",
+      bestFor:
+        "Families, Caribbean and Bahamas cruises, Ocean Cay, European itineraries, and travelers seeking strong value",
+      finePrint:
+        "Book by August 19, 2026. New U.S. bookings only. Savings apply to select sailings and the first two guests; children still pay government taxes and fees. Yacht Club is excluded from Kids Sail Free, and offer combinability is limited.",
+    },
+    {
       line: "Virgin Voyages",
       logo: brandLogos.virgin,
       image:
         "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
       sourceUrl:
         "https://www.virginvoyages.com/book/voyage-planner/find-a-voyage?cabins=1&currencyCode=USD&agentId=140046&agencyId=31527&bookingChannel=FMLINK",
-      headline: "70% Off 2nd Sailor + Free Balcony Upgrade",
+      headline: "Europe Sale: Up to $500 Onboard Credit",
       offer:
-        "Save 70% on the second Sailor and receive a complimentary balcony upgrade on eligible voyages, including departures extending into October 2028.",
+        "Book an eligible European voyage and receive up to $500 in onboard credit, a complimentary balcony upgrade, and 70% off the second Sailor.",
       bestFor:
         "Adults-only Caribbean and Mediterranean escapes, couples, modern dining, included Wi-Fi and fitness, and Sea Terrace cabins",
       finePrint:
-        "Book by August 31, 2026. The offer applies as 35% off each eligible Sailor's base fare. Voyage, cabin, solo-category, group, fare, and combinability restrictions apply. The prior onboard-credit offer has ended.",
+        "Book by August 12, 2026 for select Europe departures from August 20, 2026 through October 22, 2028. Onboard credit varies by voyage length and eligible Sea Terrace or RockStar category. Lock It In rates, reduced-rate cabins, and contracted groups are excluded. The 70%-off and balcony offer continues through August 31.",
     },
     {
       line: "Disney Cruise Line",
@@ -132,39 +147,39 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.disneyWorld,
       image: disneyWorldSpecialImage,
       sourceUrl: "https://disneyworld.disney.go.com/special-offers/",
-      headline: "Save Up to 30% on Late-Summer & Fall Rooms",
+      headline: "Save Up to 20% on Holiday Resort Rooms",
       offer:
-        "Save up to 30% on select Disney Resort hotel rooms for qualifying five-night stays arriving through October 3, 2026. Additional ticket, holiday-room, Disney+ subscriber, and qualifying kids-dining offers are also available.",
+        "Save up to 20% on select Disney Resorts Collection rooms for eligible holiday stays. Disney+ subscribers can also save up to 25% on qualifying room-and-ticket packages with complimentary Park Hopper benefits.",
       bestFor:
         "Disney families, late-summer trips, fall and holiday getaways, longer resort stays, and package savings",
       finePrint:
-        "Savings depend on resort, room type, stay length, package, and travel dates. Ticket offers have specific start dates, park limitations, use windows, and expiration dates. Availability is limited.",
+        "Valid for most Sunday-through-Thursday nights October 4–November 19, 2026 and most nights November 22–December 24, 2026. Savings vary by resort and room; length-of-stay requirements and exclusions may apply. Discounted inventory is limited.",
     },
     {
       line: "Sandals Resorts",
       logo: brandLogos.sandals,
       image: sandalsSpecialImage,
-      sourceUrl: "https://www.sandals.com/specials/",
-      headline: "Up to 65% Off + Resort & Air Credits",
+      sourceUrl: "https://www.sandals.com/sale/?variant=exp1",
+      headline: "The Great Jamaica Comeback Sale",
       offer:
-        "Save up to 65% and receive eligible resort and airfare credits on select adults-only Caribbean stays. The rotating 7-7-7 promotion adds 7% off seven featured room categories for seven days.",
+        "Receive up to $1,500 in instant credit, up to $350 in airfare credit, and a complimentary Jamaican adventure on eligible stays at seven Sandals resorts in Jamaica.",
       bestFor:
         "Adults-only all-inclusive escapes, honeymoons, anniversaries, Caribbean travel, and premium suites",
       finePrint:
-        "The public offer page does not list one universal booking deadline. Savings, credits, resorts, room categories, registration requirements, and travel dates vary. Confirm the current promotion before booking.",
+        "The public offer page does not state one universal booking or travel deadline. Resort, room, stay-length, airfare, registration, and excursion requirements vary. Confirm live eligibility and inventory before booking.",
     },
     {
       line: "Beaches Resorts",
       logo: brandLogos.beaches,
       image: beachesSpecialImage,
       sourceUrl: "https://www.beaches.com/deals/",
-      headline: "Up to 65% Off + Resort & Air Credits",
+      headline: "Endless Summer: Up to $1,000 in Credit",
       offer:
-        "Save up to 65% and receive eligible resort and airfare credits on select family all-inclusive vacations. The rotating 7-7-7 promotion adds 7% off featured room categories.",
+        "Receive up to $1,000 in instant credit, up to $750 in airfare credit, and a complimentary catamaran cruise on eligible family vacations at Beaches Turks & Caicos and Beaches Negril.",
       bestFor:
         "Caribbean family vacations, multi-generational trips, Turks & Caicos, Jamaica, Sesame Street experiences, and all-inclusive ease",
       finePrint:
-        "Savings, credits, eligible resorts, room categories, registration requirements, and travel dates vary. The Tiny Traveler offer provides a $135 resort credit per eligible child, up to two children age 5 or younger, on qualifying stays through November 6, 2026.",
+        "Book by September 7, 2026 for eligible travel through December 31, 2028. Credits depend on resort, room, stay length, registration, and travel dates. Contracted groups are excluded; other restrictions and combinability rules apply.",
     },
   ];
 }

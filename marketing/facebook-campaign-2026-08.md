@@ -21,7 +21,7 @@ Avoid publishing the expired Celebrity and Royal Caribbean flash-sale ads. Keep 
 
 ## Post 1 — Virgin Voyages Europe last call
 
-**Graphic:** `facebook-ads/virgin-europe-last-call-facebook.png`
+**Graphic:** `facebook-ads/virgin-europe-last-call-facebook-final.png`
 
 Europe is calling—and this offer ends tomorrow. 🌅
 
@@ -41,7 +41,7 @@ Select Europe voyages and eligible Sea Terrace or RockStar accommodations. Onboa
 
 ## Post 2 — Beaches Endless Summer
 
-**Graphic:** `facebook-ads/beaches-endless-summer-facebook.png`
+**Graphic:** `facebook-ads/beaches-endless-summer-facebook-final.png`
 
 The family vacation can be just as easy as it is unforgettable. ☀️
 
@@ -65,7 +65,7 @@ Credits and inclusions vary by resort, room, stay length and travel dates. Regis
 
 ## Post 3 — MSC family cruise sale
 
-**Graphic:** `facebook-ads/msc-august-cruise-sale-facebook.png`
+**Graphic:** `facebook-ads/msc-august-cruise-sale-facebook-final.png`
 
 Family cruise deal alert! 🚢
 
@@ -85,7 +85,7 @@ New U.S. bookings only. Savings apply to select sailings; children sail at a $0 
 
 ## Post 4 — Explora Journeys luxury sale
 
-**Graphic:** `facebook-ads/explora-luxury-sale-facebook.png`
+**Graphic:** `facebook-ads/explora-luxury-sale-facebook-final.png`
 
 Luxury at sea feels even better when more is already included. ✨
 
@@ -128,4 +128,3 @@ Book by September 7.
 ENDS TOMORROW ⏰  
 One last chance to reserve the Beaches Endless Summer offer.  
 Tap for a free family-vacation quote.
-

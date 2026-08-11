@@ -15,7 +15,7 @@ import nclLogo from "./assets/brands/ncl.png";
 import vikingLogo from "./assets/brands/viking.png";
 import amaWaterwaysLogo from "./assets/brands/amawaterways.jpg";
 import carnivalLogo from "./assets/brands/carnival.png";
-import sandalsLogo from "./assets/brands/sandals.png";
+import sandalsLogo from "./assets/brands/sandals-logo.png";
 import beachesLogo from "./assets/brands/beaches.png";
 import mscLogo from "./assets/brands/msc.png";
 import virginLogo from "./assets/brands/virgin.png";
@@ -288,7 +288,21 @@ function LogoBadge({ logo, size = "normal" }) {
             src={logo.src}
             alt={`${logo.name} logo`}
             className={logo.showName ? "h-8 w-8 object-contain" : "max-h-8 max-w-full object-contain"}
+            onError={(event) => {
+              event.currentTarget.hidden = true;
+              if (!logo.showName) {
+                event.currentTarget.nextElementSibling.hidden = false;
+              }
+            }}
           />
+          {!logo.showName && (
+            <span
+              hidden
+              className="max-w-[9rem] text-center text-xs font-black uppercase tracking-[0.12em] text-[#1F1B1D]"
+            >
+              {logo.name}
+            </span>
+          )}
           {logo.showName && (
             <span className="max-w-[7rem] text-left text-[0.62rem] font-black uppercase leading-tight tracking-[0.14em] text-[#1F1B1D]">
               {logo.name}

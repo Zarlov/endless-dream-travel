@@ -85,7 +85,7 @@ New U.S. bookings only. Savings apply to select sailings; children sail at a $0 
 
 ## Post 4 — Explora Journeys luxury sale
 
-**Graphic:** `facebook-ads/explora-luxury-sale-facebook-corrected.png`
+**Graphic:** `facebook-ads/explora-luxury-sale-facebook-corrected-v2.png`
 
 Luxury at sea feels even better when more is already included. ✨
 

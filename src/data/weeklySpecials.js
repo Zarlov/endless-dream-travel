@@ -120,7 +120,7 @@ export function buildWeeklySpecials(brandLogos) {
       offer:
         "Save 50% on all open-for-sale cruises and receive up to $750 in onboard credit per stateroom on select sailings. Free at Sea benefits remain available on qualifying reservations.",
       bestFor:
-        "Caribbean, Bahamas, Alaska, Bermuda, Europe, the Mexican Riviera, and clients who want advisor-only savings",
+        "Caribbean, Bahamas, Alaska, Bermuda, Europe, the Mexican Riviera, and clients seeking cruise savings with onboard credit",
       finePrint:
         "Book by August 18, 2026. The 50% savings applies to all open-for-sale cruises; onboard credit applies only to select ships, sailings, and Balcony-or-higher accommodations. The $750 maximum requires an eligible six-night-or-longer Haven booking. Service charges and optional packages cost extra.",
     },

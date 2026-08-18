@@ -9,7 +9,8 @@
       "type": "varchar",
       "maxLength": 50,
       "index": true,
-      "readOnlyAfterCreate": true
+      "readOnlyAfterCreate": true,
+      "relateOnImport": true
     },
     "primaryTraveler": {
       "type": "link"

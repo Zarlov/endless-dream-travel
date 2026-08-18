@@ -19,15 +19,16 @@ const write = (rel, value) => {
 const moduleWrite = (rel, value) => write(`files/custom/Espo/Modules/EndlessDreamTravel/${rel}`, value);
 const field = (type, extra = {}) => ({ type, ...extra });
 const link = (type, entity, foreign, extra = {}) => ({ type, entity, foreign, ...extra });
+const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index: true, readOnlyAfterCreate: true, relateOnImport: true });
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.26',
+  version: '1.0.27',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
   releaseDate: '2026-08-16',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.26 automatically names Commission records from their linked Booking.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.27 enables relationship matching by External ID during CSV imports.'
 });
 
 const auditFields = {
@@ -612,7 +613,7 @@ const entities = {
     label: 'Household', plural: 'Households',
     fields: {
       name: field('varchar', { required: true, maxLength: 150 }),
-      externalId: field('varchar', { maxLength: 50, index: true, readOnlyAfterCreate: true }),
+      externalId: externalIdField(50),
       primaryTraveler: field('link'), sourceNameLabels: field('text'),
       importReviewStatus: field('enum', { options: ['Ready','Needs Review','Do Not Import'], default: 'Ready' }),
       assignedUser: field('link'), teams: field('linkMultiple'), description: field('text')
@@ -636,7 +637,7 @@ const entities = {
   EdtTrip: {
     label: 'Trip', plural: 'Trips',
     fields: {
-      name: field('varchar', { required: true, maxLength: 180 }), externalId: field('varchar', { maxLength: 50, index: true, readOnlyAfterCreate: true }),
+      name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(50),
       household: field('link'), primaryTraveler: field('link'), travelStartDate: field('date'), travelEndDate: field('date', { after: 'travelStartDate', view: 'endless-dream-travel:views/fields/trip-end-date' }), mainBooking: field('link'),
       status: field('enum', { options: ['Proposed','Booked','In Travel','Completed','Canceled'], default: 'Proposed' }),
       componentCount: field('int', { default: 0, readOnly: true }), grossComponentValue: field('currency', { readOnly: true }), expectedCommissionTotal: field('currency', { readOnly: true }), receivedCommissionTotal: field('currency', { readOnly: true }), balanceDueTotal: field('currency', { readOnly: true }),
@@ -656,7 +657,7 @@ const entities = {
   EdtBooking: {
     label: 'Booking', plural: 'Bookings',
     fields: {
-      name: field('varchar', { required: true, maxLength: 180 }), externalId: field('varchar', { maxLength: 50, index: true, readOnlyAfterCreate: true }),
+      name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(50),
       trip: field('link'), household: field('link'), primaryTraveler: field('link'), supplier: field('link'), confirmationNumber: field('varchar', { maxLength: 100, index: true }),
       componentType: field('enum', { options: ['Cruise','Resort / Hotel','Theme Park Tickets','Excursion / Tour','Transfer / Transportation','Travel Insurance','Air','Package','Other'] }),
       componentRole: field('enum', { options: ['Main Booking','Add-on','Standalone Add-on (Review)'], default: 'Main Booking' }), parentComponent: field('link'),
@@ -681,42 +682,42 @@ const entities = {
   },
   EdtTripTraveler: {
     label: 'Trip Traveler', plural: 'Trip Travelers',
-    fields: { name: field('varchar', { maxLength: 180 }), externalId: field('varchar', { maxLength: 60, index: true, readOnlyAfterCreate: true }), trip: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), source: field('varchar', { maxLength: 255 }), manualReviewRequired: field('bool', { default: false }) },
+    fields: { name: field('varchar', { maxLength: 180 }), externalId: externalIdField(60), trip: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), source: field('varchar', { maxLength: 255 }), manualReviewRequired: field('bool', { default: false }) },
     links: { trip: link('belongsTo', 'EdtTrip', 'tripTravelers'), contact: link('belongsTo', 'Contact', 'edtTripTravelers') },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, tripContactUnique: { columns: ['tripId','contactId'], unique: true } },
     detail: [['trip','contact'],['travelerRole','manualReviewRequired'],['externalId','source']], list: ['trip','contact','travelerRole','manualReviewRequired'], filters: ['trip','contact','travelerRole','manualReviewRequired'], bottom: []
   },
   EdtBookingTraveler: {
     label: 'Booking Traveler', plural: 'Booking Travelers',
-    fields: { name: field('varchar', { maxLength: 180 }), externalId: field('varchar', { maxLength: 60, index: true, readOnlyAfterCreate: true }), booking: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), nameParseConfidence: field('enum', { options: ['Corrected','High','Medium','Low'] }), sourceNameLabel: field('varchar', { maxLength: 255 }), manualReviewRequired: field('bool', { default: false }) },
+    fields: { name: field('varchar', { maxLength: 180 }), externalId: externalIdField(60), booking: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), nameParseConfidence: field('enum', { options: ['Corrected','High','Medium','Low'] }), sourceNameLabel: field('varchar', { maxLength: 255 }), manualReviewRequired: field('bool', { default: false }) },
     links: { booking: link('belongsTo', 'EdtBooking', 'bookingTravelers'), contact: link('belongsTo', 'Contact', 'edtBookingTravelers') },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, bookingContactUnique: { columns: ['bookingId','contactId'], unique: true } },
     detail: [['booking','contact'],['travelerRole','nameParseConfidence'],['externalId','manualReviewRequired'],['sourceNameLabel',false]], list: ['booking','contact','travelerRole','manualReviewRequired'], filters: ['booking','contact','travelerRole','nameParseConfidence','manualReviewRequired'], bottom: []
   },
   EdtCommission: {
     label: 'Commission', plural: 'Commissions',
-    fields: { name: field('varchar', { maxLength: 180, readOnly: true }), externalId: field('varchar', { maxLength: 60, index: true, readOnlyAfterCreate: true }), booking: field('link', { required: true, view: 'endless-dream-travel:views/fields/commission-booking' }), supplier: field('link'), type: field('enum', { options: ['Base Commission','Bonus','Adjustment','Clawback'], default: 'Base Commission' }), expectedAmount: field('currency'), receivedAmount: field('currency'), status: field('enum', { options: ['Expected','Received','Disputed','Written Off','Removed / Do Not Import'], default: 'Expected' }), receivedDate: field('date'), autoGenerated: field('bool', { default: false, readOnly: true }), reconciliationNote: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
+    fields: { name: field('varchar', { maxLength: 180, readOnly: true }), externalId: externalIdField(60), booking: field('link', { required: true, view: 'endless-dream-travel:views/fields/commission-booking' }), supplier: field('link'), type: field('enum', { options: ['Base Commission','Bonus','Adjustment','Clawback'], default: 'Base Commission' }), expectedAmount: field('currency'), receivedAmount: field('currency'), status: field('enum', { options: ['Expected','Received','Disputed','Written Off','Removed / Do Not Import'], default: 'Expected' }), receivedDate: field('date'), autoGenerated: field('bool', { default: false, readOnly: true }), reconciliationNote: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
     links: { booking: link('belongsTo', 'EdtBooking', 'commissions'), supplier: link('belongsTo', 'Account', 'edtCommissions'), assignedUser: link('belongsTo', 'User', 'edtCommissions'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, receivedDate: { columns: ['receivedDate'] } },
     detail: [['name','externalId'],['booking','supplier'],['type','status'],['expectedAmount','receivedAmount'],['receivedDate','assignedUser'],['reconciliationNote','teams']], list: ['name','booking','supplier','type','expectedAmount','receivedAmount','status','receivedDate'], filters: ['booking','supplier','type','status','receivedDate','assignedUser','teams'], bottom: []
   },
   EdtQuote: {
     label: 'Travel Quote', plural: 'Travel Quotes',
-    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: field('varchar', { maxLength: 60, index: true, readOnlyAfterCreate: true }), household: field('link'), primaryContact: field('link'), supplier: field('link'), convertedTrip: field('link'), stage: field('enum', { options: ['Draft','Sent','Accepted','Declined','Expired','Converted'], default: 'Draft' }), estimatedSale: field('currency'), validUntil: field('date'), travelStartDate: field('date'), travelEndDate: field('date'), destination: field('varchar', { maxLength: 255 }), attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
+    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(60), household: field('link'), primaryContact: field('link'), supplier: field('link'), convertedTrip: field('link'), stage: field('enum', { options: ['Draft','Sent','Accepted','Declined','Expired','Converted'], default: 'Draft' }), estimatedSale: field('currency'), validUntil: field('date'), travelStartDate: field('date'), travelEndDate: field('date'), destination: field('varchar', { maxLength: 255 }), attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
     links: { household: link('belongsTo', 'EdtHousehold', 'quotes'), primaryContact: link('belongsTo', 'Contact', 'primaryQuotes'), supplier: link('belongsTo', 'Account', 'edtQuotes'), convertedTrip: link('belongsTo', 'EdtTrip', 'quotes'), assignedUser: link('belongsTo', 'User', 'edtQuotes'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true } },
     detail: [['name','externalId'],['household','primaryContact'],['supplier','stage'],['estimatedSale','validUntil'],['travelStartDate','travelEndDate'],['destination','convertedTrip'],['attachments',false],['notes','assignedUser'],['teams',false]], list: ['name','household','primaryContact','supplier','stage','estimatedSale','validUntil'], filters: ['name','externalId','household','primaryContact','supplier','stage','validUntil','travelStartDate','travelEndDate','assignedUser','teams'], bottom: []
   },
   EdtLoyaltyMembership: {
     label: 'Loyalty Membership', plural: 'Loyalty Memberships',
-    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: field('varchar', { maxLength: 60, index: true, readOnlyAfterCreate: true }), contact: field('link', { required: true }), supplier: field('link'), programName: field('varchar', { required: true, maxLength: 150 }), membershipNumber: field('varchar', { maxLength: 150, isPersonalData: true }), tier: field('varchar', { maxLength: 100 }), status: field('enum', { options: ['Active','Inactive','Unknown'], default: 'Active' }), verifiedDate: field('date'), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
+    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(60), contact: field('link', { required: true }), supplier: field('link'), programName: field('varchar', { required: true, maxLength: 150 }), membershipNumber: field('varchar', { maxLength: 150, isPersonalData: true }), tier: field('varchar', { maxLength: 100 }), status: field('enum', { options: ['Active','Inactive','Unknown'], default: 'Active' }), verifiedDate: field('date'), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
     links: { contact: link('belongsTo', 'Contact', 'edtLoyaltyMemberships'), supplier: link('belongsTo', 'Account', 'edtLoyaltyMemberships'), assignedUser: link('belongsTo', 'User', 'edtLoyaltyMemberships'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, contactProgram: { columns: ['contactId','programName'] } },
     detail: [['name','externalId'],['contact','supplier'],['programName','membershipNumber'],['tier','status'],['verifiedDate','assignedUser'],['notes','teams']], list: ['name','contact','supplier','programName','tier','status','verifiedDate'], filters: ['contact','supplier','programName','tier','status','verifiedDate','assignedUser','teams'], bottom: []
   },
   EdtSegmentMembership: {
     label: 'Segment Membership', plural: 'Segment Memberships',
-    fields: { name: field('varchar', { maxLength: 180 }), externalId: field('varchar', { maxLength: 70, index: true, readOnlyAfterCreate: true }), contact: field('link'), household: field('link'), segmentCode: field('varchar', { required: true, maxLength: 100, index: true }), basis: field('text'), active: field('bool', { default: true }), source: field('enum', { options: ['Imported','Calculated','Manual'], default: 'Imported' }), lastEvaluatedDate: field('date') },
+    fields: { name: field('varchar', { maxLength: 180 }), externalId: externalIdField(70), contact: field('link'), household: field('link'), segmentCode: field('varchar', { required: true, maxLength: 100, index: true }), basis: field('text'), active: field('bool', { default: true }), source: field('enum', { options: ['Imported','Calculated','Manual'], default: 'Imported' }), lastEvaluatedDate: field('date') },
     links: { contact: link('belongsTo', 'Contact', 'edtSegmentMemberships'), household: link('belongsTo', 'EdtHousehold', 'segmentMemberships') },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, segmentCode: { columns: ['segmentCode'] } },
     detail: [['segmentCode','active'],['contact','household'],['source','lastEvaluatedDate'],['externalId',false],['basis',false]], list: ['segmentCode','contact','household','active','source','lastEvaluatedDate'], filters: ['segmentCode','contact','household','active','source','lastEvaluatedDate'], bottom: []
@@ -726,7 +727,7 @@ const entities = {
 const standardFields = {
   Contact: {
     fields: {
-      edtExternalId: field('varchar', { maxLength: 50, index: true }), household: field('link'), isPrimaryHouseholdContact: field('bool', { default: false }), edtAutoCreateHousehold: field('bool', { default: false }), edtUseHouseholdAddress: field('bool', { default: false }),
+      edtExternalId: field('varchar', { maxLength: 50, index: true, relateOnImport: true }), household: field('link'), isPrimaryHouseholdContact: field('bool', { default: false }), edtAutoCreateHousehold: field('bool', { default: false }), edtUseHouseholdAddress: field('bool', { default: false }),
       edtAddressLine1: field('varchar', { maxLength: 255, isPersonalData: true }), edtAddressLine2: field('varchar', { maxLength: 255, isPersonalData: true }), edtCity: field('varchar', { maxLength: 100, isPersonalData: true }), edtState: field('varchar', { maxLength: 100, isPersonalData: true }), edtPostalCode: field('varchar', { maxLength: 20, isPersonalData: true }), edtCountry: field('varchar', { maxLength: 100, default: 'United States', isPersonalData: true }), edtDateOfBirth: field('date', { isPersonalData: true }),
       marketingOptIn: field('enum', { options: ['Unknown','Opted In','Opted Out'], default: 'Unknown' }), travelerStatus: field('enum', { options: ['Prospect','Customer','Inactive'], default: 'Prospect' }), nameParseConfidence: field('enum', { options: ['Corrected','High','Medium','Low'] }),
       sourceNameExample: field('varchar', { maxLength: 255 }), manualReviewNote: field('text'), totalBookings: field('int', { default: 0 }), lifetimeSales: field('currency'), lifetimeCommission: field('currency'), lastTravelYear: field('int'), vendorsBooked: field('text'), marketingSegments: field('text')
@@ -738,7 +739,7 @@ const standardFields = {
     indexes: { edtExternalIdUnique: { columns: ['edtExternalId'], unique: true } }
   },
   Account: {
-    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }) },
+    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true, relateOnImport: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }) },
     links: { edtBookings: link('hasMany', 'EdtBooking', 'supplier'), edtCommissions: link('hasMany', 'EdtCommission', 'supplier'), edtQuotes: link('hasMany', 'EdtQuote', 'supplier'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'supplier') },
     indexes: { edtVendorExternalIdUnique: { columns: ['edtVendorExternalId'], unique: true } }
   },

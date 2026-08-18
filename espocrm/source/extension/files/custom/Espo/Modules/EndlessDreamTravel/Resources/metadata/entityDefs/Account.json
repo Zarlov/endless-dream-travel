@@ -3,7 +3,8 @@
     "edtVendorExternalId": {
       "type": "varchar",
       "maxLength": 60,
-      "index": true
+      "index": true,
+      "relateOnImport": true
     },
     "edtVendor": {
       "type": "bool",

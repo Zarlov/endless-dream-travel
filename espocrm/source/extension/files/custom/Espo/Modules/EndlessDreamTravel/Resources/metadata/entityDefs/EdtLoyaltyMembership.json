@@ -9,7 +9,8 @@
       "type": "varchar",
       "maxLength": 60,
       "index": true,
-      "readOnlyAfterCreate": true
+      "readOnlyAfterCreate": true,
+      "relateOnImport": true
     },
     "contact": {
       "type": "link",

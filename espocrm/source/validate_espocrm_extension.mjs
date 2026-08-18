@@ -41,7 +41,7 @@ for (const [entity, def] of Object.entries(defs)) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
-if (manifest.version !== '1.0.26') errors.push('Unexpected manifest version');
+if (manifest.version !== '1.0.27') errors.push('Unexpected manifest version');
 if (!manifest.acceptableVersions?.some(x => x.includes('10.0.0'))) errors.push('EspoCRM 10 compatibility missing');
 
 console.log(JSON.stringify({ ok: errors.length === 0, errors, jsonFiles: jsonFiles.length, customEntities: customEntities.length, externalIdIndexes: customEntities.filter(x => defs[x]?.indexes?.externalIdUnique?.unique).length }, null, 2));

@@ -3,7 +3,8 @@
     "edtExternalId": {
       "type": "varchar",
       "maxLength": 50,
-      "index": true
+      "index": true,
+      "relateOnImport": true
     },
     "household": {
       "type": "link"

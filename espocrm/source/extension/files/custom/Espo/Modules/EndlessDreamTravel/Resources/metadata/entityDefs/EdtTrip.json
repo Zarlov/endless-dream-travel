@@ -1,0 +1,183 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 50,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "household": {
+      "type": "link"
+    },
+    "primaryTraveler": {
+      "type": "link"
+    },
+    "travelStartDate": {
+      "type": "date"
+    },
+    "travelEndDate": {
+      "type": "date",
+      "after": "travelStartDate",
+      "view": "endless-dream-travel:views/fields/trip-end-date"
+    },
+    "mainBooking": {
+      "type": "link"
+    },
+    "status": {
+      "type": "enum",
+      "options": [
+        "Proposed",
+        "Booked",
+        "In Travel",
+        "Completed",
+        "Canceled"
+      ],
+      "default": "Proposed"
+    },
+    "componentCount": {
+      "type": "int",
+      "default": 0,
+      "readOnly": true
+    },
+    "grossComponentValue": {
+      "type": "currency",
+      "readOnly": true
+    },
+    "expectedCommissionTotal": {
+      "type": "currency",
+      "readOnly": true
+    },
+    "receivedCommissionTotal": {
+      "type": "currency",
+      "readOnly": true
+    },
+    "balanceDueTotal": {
+      "type": "currency",
+      "readOnly": true
+    },
+    "importReviewStatus": {
+      "type": "enum",
+      "options": [
+        "Proposed",
+        "Confirmed",
+        "Needs Review",
+        "Do Not Import"
+      ],
+      "default": "Proposed"
+    },
+    "groupingNote": {
+      "type": "text"
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "teams": {
+      "type": "linkMultiple"
+    },
+    "description": {
+      "type": "text"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "household": {
+      "type": "belongsTo",
+      "entity": "EdtHousehold",
+      "foreign": "trips"
+    },
+    "primaryTraveler": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "primaryTrips"
+    },
+    "mainBooking": {
+      "type": "belongsTo",
+      "entity": "EdtBooking",
+      "foreign": "mainForTrips"
+    },
+    "bookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "trip",
+      "audited": true
+    },
+    "tripTravelers": {
+      "type": "hasMany",
+      "entity": "EdtTripTraveler",
+      "foreign": "trip",
+      "audited": true
+    },
+    "quotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "convertedTrip"
+    },
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtTrips"
+    },
+    "teams": {
+      "type": "hasMany",
+      "entity": "Team",
+      "relationName": "entityTeam"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    },
+    "travelDates": {
+      "columns": [
+        "travelStartDate",
+        "travelEndDate"
+      ]
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

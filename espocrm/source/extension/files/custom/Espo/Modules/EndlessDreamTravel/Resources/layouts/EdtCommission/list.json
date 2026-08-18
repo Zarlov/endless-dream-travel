@@ -1,0 +1,27 @@
+[
+  {
+    "name": "name",
+    "link": true
+  },
+  {
+    "name": "booking"
+  },
+  {
+    "name": "supplier"
+  },
+  {
+    "name": "type"
+  },
+  {
+    "name": "expectedAmount"
+  },
+  {
+    "name": "receivedAmount"
+  },
+  {
+    "name": "status"
+  },
+  {
+    "name": "receivedDate"
+  }
+]

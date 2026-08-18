@@ -1,0 +1,106 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 60,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "trip": {
+      "type": "link",
+      "required": true
+    },
+    "contact": {
+      "type": "link",
+      "required": true
+    },
+    "travelerRole": {
+      "type": "enum",
+      "options": [
+        "Primary",
+        "Traveler",
+        "Guest",
+        "Group Lead"
+      ],
+      "default": "Traveler"
+    },
+    "source": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "manualReviewRequired": {
+      "type": "bool",
+      "default": false
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "trip": {
+      "type": "belongsTo",
+      "entity": "EdtTrip",
+      "foreign": "tripTravelers"
+    },
+    "contact": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "edtTripTravelers"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    },
+    "tripContactUnique": {
+      "columns": [
+        "tripId",
+        "contactId"
+      ],
+      "unique": true
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

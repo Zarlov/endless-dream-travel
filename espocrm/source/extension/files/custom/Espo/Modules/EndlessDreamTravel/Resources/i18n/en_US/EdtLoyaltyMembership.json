@@ -1,0 +1,32 @@
+{
+  "labels": {
+    "Create EdtLoyaltyMembership": "Create Loyalty Membership"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Loyalty Membership External ID",
+    "contact": "Client",
+    "supplier": "Supplier",
+    "programName": "Program Name",
+    "membershipNumber": "Membership Number",
+    "tier": "Tier",
+    "status": "Status",
+    "verifiedDate": "Verified Date",
+    "notes": "Notes",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "links": {
+    "contact": "Client",
+    "supplier": "Supplier",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "options": {
+    "status": {
+      "Active": "Active",
+      "Inactive": "Inactive",
+      "Unknown": "Unknown"
+    }
+  }
+}

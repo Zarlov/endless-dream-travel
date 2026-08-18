@@ -1,0 +1,33 @@
+{
+  "labels": {
+    "Create EdtBookingTraveler": "Create Booking Traveler"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Booking Traveler External ID",
+    "booking": "Booking",
+    "contact": "Client",
+    "travelerRole": "Traveler Role",
+    "nameParseConfidence": "Name Parse Confidence",
+    "sourceNameLabel": "Source Name Label",
+    "manualReviewRequired": "Manual Review Required"
+  },
+  "links": {
+    "booking": "Booking",
+    "contact": "Client"
+  },
+  "options": {
+    "travelerRole": {
+      "Primary": "Primary",
+      "Traveler": "Traveler",
+      "Guest": "Guest",
+      "Group Lead": "Group Lead"
+    },
+    "nameParseConfidence": {
+      "Corrected": "Corrected",
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 60,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "household": {
+      "type": "link"
+    },
+    "primaryContact": {
+      "type": "link"
+    },
+    "supplier": {
+      "type": "link"
+    },
+    "convertedTrip": {
+      "type": "link"
+    },
+    "stage": {
+      "type": "enum",
+      "options": [
+        "Draft",
+        "Sent",
+        "Accepted",
+        "Declined",
+        "Expired",
+        "Converted"
+      ],
+      "default": "Draft"
+    },
+    "estimatedSale": {
+      "type": "currency"
+    },
+    "validUntil": {
+      "type": "date"
+    },
+    "travelStartDate": {
+      "type": "date"
+    },
+    "travelEndDate": {
+      "type": "date"
+    },
+    "destination": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "attachments": {
+      "type": "attachmentMultiple",
+      "view": "endless-dream-travel:views/fields/quote-attachments"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "teams": {
+      "type": "linkMultiple"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "household": {
+      "type": "belongsTo",
+      "entity": "EdtHousehold",
+      "foreign": "quotes"
+    },
+    "primaryContact": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "primaryQuotes"
+    },
+    "supplier": {
+      "type": "belongsTo",
+      "entity": "Account",
+      "foreign": "edtQuotes"
+    },
+    "convertedTrip": {
+      "type": "belongsTo",
+      "entity": "EdtTrip",
+      "foreign": "quotes"
+    },
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtQuotes"
+    },
+    "teams": {
+      "type": "hasMany",
+      "entity": "Team",
+      "relationName": "entityTeam"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

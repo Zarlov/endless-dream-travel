@@ -1,0 +1,27 @@
+{
+  "labels": {
+    "Create EdtSegmentMembership": "Create Segment Membership"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Segment Membership External ID",
+    "contact": "Client",
+    "household": "Household",
+    "segmentCode": "Segment Code",
+    "basis": "Basis",
+    "active": "Active",
+    "source": "Source",
+    "lastEvaluatedDate": "Last Evaluated Date"
+  },
+  "links": {
+    "contact": "Client",
+    "household": "Household"
+  },
+  "options": {
+    "source": {
+      "Imported": "Imported",
+      "Calculated": "Calculated",
+      "Manual": "Manual"
+    }
+  }
+}

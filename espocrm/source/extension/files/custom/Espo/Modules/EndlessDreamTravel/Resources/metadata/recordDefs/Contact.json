@@ -1,0 +1,12 @@
+{
+  "beforeCreateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress"
+  ],
+  "beforeUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress"
+  ],
+  "afterCreateHookClassNameList": [
+    "Espo\\Modules\\Crm\\Classes\\RecordHooks\\Contact\\AfterCreate",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\AfterCreateHousehold"
+  ]
+}

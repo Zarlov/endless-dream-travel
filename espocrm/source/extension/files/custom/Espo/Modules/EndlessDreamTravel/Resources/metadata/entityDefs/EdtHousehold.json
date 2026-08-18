@@ -1,0 +1,130 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 150
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 50,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "primaryTraveler": {
+      "type": "link"
+    },
+    "sourceNameLabels": {
+      "type": "text"
+    },
+    "importReviewStatus": {
+      "type": "enum",
+      "options": [
+        "Ready",
+        "Needs Review",
+        "Do Not Import"
+      ],
+      "default": "Ready"
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "teams": {
+      "type": "linkMultiple"
+    },
+    "description": {
+      "type": "text"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "primaryTraveler": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "primaryHouseholds"
+    },
+    "contacts": {
+      "type": "hasMany",
+      "entity": "Contact",
+      "foreign": "household",
+      "audited": true
+    },
+    "trips": {
+      "type": "hasMany",
+      "entity": "EdtTrip",
+      "foreign": "household",
+      "audited": true
+    },
+    "bookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "household"
+    },
+    "quotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "household"
+    },
+    "segmentMemberships": {
+      "type": "hasMany",
+      "entity": "EdtSegmentMembership",
+      "foreign": "household"
+    },
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtHouseholds"
+    },
+    "teams": {
+      "type": "hasMany",
+      "entity": "Team",
+      "relationName": "entityTeam"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

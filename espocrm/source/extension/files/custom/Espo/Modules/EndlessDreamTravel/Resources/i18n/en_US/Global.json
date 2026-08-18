@@ -1,0 +1,28 @@
+{
+  "scopeNames": {
+    "EdtHousehold": "Household",
+    "EdtTrip": "Trip",
+    "EdtBooking": "Booking",
+    "EdtTripTraveler": "Trip Traveler",
+    "EdtBookingTraveler": "Booking Traveler",
+    "EdtCommission": "Commission",
+    "EdtQuote": "Travel Quote",
+    "EdtLoyaltyMembership": "Loyalty Membership",
+    "EdtSegmentMembership": "Segment Membership",
+    "Account": "Vendor",
+    "Contact": "Client"
+  },
+  "scopeNamesPlural": {
+    "EdtHousehold": "Households",
+    "EdtTrip": "Trips",
+    "EdtBooking": "Bookings",
+    "EdtTripTraveler": "Trip Travelers",
+    "EdtBookingTraveler": "Booking Travelers",
+    "EdtCommission": "Commissions",
+    "EdtQuote": "Travel Quotes",
+    "EdtLoyaltyMembership": "Loyalty Memberships",
+    "EdtSegmentMembership": "Segment Memberships",
+    "Account": "Vendors",
+    "Contact": "Clients"
+  }
+}

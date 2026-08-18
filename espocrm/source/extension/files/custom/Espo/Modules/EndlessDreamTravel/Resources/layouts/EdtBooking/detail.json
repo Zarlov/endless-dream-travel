@@ -1,0 +1,152 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "trip"
+        },
+        {
+          "name": "household"
+        }
+      ],
+      [
+        {
+          "name": "primaryTraveler"
+        },
+        {
+          "name": "supplier"
+        }
+      ],
+      [
+        {
+          "name": "confirmationNumber"
+        },
+        {
+          "name": "status"
+        }
+      ],
+      [
+        {
+          "name": "componentType"
+        },
+        {
+          "name": "componentRole"
+        }
+      ],
+      [
+        {
+          "name": "parentComponent"
+        },
+        {
+          "name": "financialTreatment"
+        }
+      ],
+      [
+        {
+          "name": "includedInParentPrice"
+        },
+        {
+          "name": "reportableSale"
+        }
+      ],
+      [
+        {
+          "name": "travelStartDate"
+        },
+        {
+          "name": "travelEndDate"
+        }
+      ],
+      [
+        {
+          "name": "serviceStartDate"
+        },
+        {
+          "name": "serviceEndDate"
+        }
+      ],
+      [
+        {
+          "name": "finalPaymentDueDate"
+        },
+        {
+          "name": "bookingYear"
+        }
+      ],
+      [
+        {
+          "name": "grossSale"
+        },
+        {
+          "name": "amountPaidToSupplier"
+        }
+      ],
+      [
+        {
+          "name": "balanceDue"
+        },
+        {
+          "name": "expectedCommission"
+        }
+      ],
+      [
+        {
+          "name": "commissionPaidFlag"
+        },
+        {
+          "name": "bonusAmount"
+        }
+      ],
+      [
+        {
+          "name": "bonusPaidFlag"
+        },
+        {
+          "name": "feesFlag"
+        }
+      ],
+      [
+        {
+          "name": "thankYouSentFlag"
+        },
+        {
+          "name": "marketingCategory"
+        }
+      ],
+      [
+        {
+          "name": "importReviewStatus"
+        },
+        {
+          "name": "tripAssignmentConfidence"
+        }
+      ],
+      [
+        {
+          "name": "tripAssignmentNote"
+        },
+        false
+      ],
+      [
+        {
+          "name": "attachments"
+        },
+        false
+      ],
+      [
+        {
+          "name": "notes"
+        },
+        false
+      ]
+    ]
+  }
+]

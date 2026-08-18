@@ -1,0 +1,69 @@
+{
+  "fields": {
+    "edtVendorExternalId": {
+      "type": "varchar",
+      "maxLength": 60,
+      "index": true
+    },
+    "edtVendor": {
+      "type": "bool",
+      "default": false
+    },
+    "edtVendorType": {
+      "type": "enum",
+      "options": [
+        "Cruise Line",
+        "Theme Park",
+        "Resort / Hotel",
+        "Tour / Excursion",
+        "Insurance",
+        "Transportation",
+        "Airline",
+        "Wholesaler",
+        "Other"
+      ]
+    },
+    "edtSupplierCode": {
+      "type": "varchar",
+      "maxLength": 50
+    },
+    "edtVendorStatus": {
+      "type": "enum",
+      "options": [
+        "Active",
+        "Inactive"
+      ],
+      "default": "Active"
+    }
+  },
+  "links": {
+    "edtBookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "supplier"
+    },
+    "edtCommissions": {
+      "type": "hasMany",
+      "entity": "EdtCommission",
+      "foreign": "supplier"
+    },
+    "edtQuotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "supplier"
+    },
+    "edtLoyaltyMemberships": {
+      "type": "hasMany",
+      "entity": "EdtLoyaltyMembership",
+      "foreign": "supplier"
+    }
+  },
+  "indexes": {
+    "edtVendorExternalIdUnique": {
+      "columns": [
+        "edtVendorExternalId"
+      ],
+      "unique": true
+    }
+  }
+}

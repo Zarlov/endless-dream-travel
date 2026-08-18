@@ -1,0 +1,109 @@
+[
+  {
+    "label": "",
+    "rows": [
+      [
+        {
+          "name": "name",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "emailAddress",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "phoneNumber",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "household",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtAutoCreateHousehold"
+        },
+        {
+          "name": "edtUseHouseholdAddress"
+        }
+      ],
+      [
+        {
+          "name": "isPrimaryHouseholdContact"
+        },
+        {
+          "name": "travelerStatus"
+        }
+      ],
+      [
+        {
+          "name": "marketingOptIn"
+        },
+        {
+          "name": "edtDateOfBirth"
+        }
+      ],
+      [
+        {
+          "name": "edtAddressLine1",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtAddressLine2",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtCity",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtState"
+        },
+        {
+          "name": "edtPostalCode"
+        }
+      ],
+      [
+        {
+          "name": "edtCountry",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtExternalId",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "description",
+          "fullWidth": true
+        },
+        false
+      ]
+    ]
+  }
+]

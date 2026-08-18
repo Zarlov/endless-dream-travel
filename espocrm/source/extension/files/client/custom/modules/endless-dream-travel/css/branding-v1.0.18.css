@@ -1,0 +1,25 @@
+.edt-ship-icon {
+    display: inline-block !important;
+    width: 1.15em;
+    height: 1.15em;
+    background: url('../img/logo-ship.png') center / contain no-repeat;
+    vertical-align: -0.15em;
+}
+
+.edt-ship-icon::before {
+    content: '' !important;
+}
+
+/* Use the matching lettering treatment for the active EspoCRM theme. */
+img[alt="logo"] { content: url('../img/logo-light.png'); }
+body[data-is-dark="true"] img[alt="logo"] { content: url('../img/logo-dark.png'); }
+
+/* Endless Dream Travel navigation accents. */
+.navbar a[href="#EdtTrip"] .short-label span { color: #55b6d9 !important; }
+.navbar a[href="#EdtBooking"] .short-label span { color: #6fc7e8 !important; }
+.navbar a[href="#EdtHousehold"] .short-label span { color: #f2b45f !important; }
+.navbar a[href="#Contact"] .short-label span { color: #82c98f !important; }
+.navbar a[href="#EdtCommission"] .short-label span { color: #9bd36a !important; }
+.navbar a[href="#EdtQuote"] .short-label span { color: #c7a5f5 !important; }
+.navbar a[href="#EdtLoyaltyMembership"] .short-label span { color: #f3c84b !important; }
+.navbar a[href="#Account"] .short-label span { color: #e59b78 !important; }

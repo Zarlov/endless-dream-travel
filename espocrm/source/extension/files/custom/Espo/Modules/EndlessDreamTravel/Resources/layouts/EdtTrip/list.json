@@ -1,0 +1,25 @@
+[
+  {
+    "name": "name",
+    "link": true,
+    "width": 30
+  },
+  {
+    "name": "household"
+  },
+  {
+    "name": "travelStartDate"
+  },
+  {
+    "name": "travelEndDate"
+  },
+  {
+    "name": "status"
+  },
+  {
+    "name": "grossComponentValue"
+  },
+  {
+    "name": "expectedCommissionTotal"
+  }
+]

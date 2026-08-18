@@ -1,0 +1,9 @@
+[
+  "name",
+  "externalId",
+  "household",
+  "primaryTraveler",
+  "travelStartDate",
+  "travelEndDate",
+  "status"
+]

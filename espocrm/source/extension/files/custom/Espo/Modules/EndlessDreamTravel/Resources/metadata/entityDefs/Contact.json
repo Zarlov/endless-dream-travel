@@ -1,0 +1,167 @@
+{
+  "fields": {
+    "edtExternalId": {
+      "type": "varchar",
+      "maxLength": 50,
+      "index": true
+    },
+    "household": {
+      "type": "link"
+    },
+    "isPrimaryHouseholdContact": {
+      "type": "bool",
+      "default": false
+    },
+    "edtAutoCreateHousehold": {
+      "type": "bool",
+      "default": false
+    },
+    "edtUseHouseholdAddress": {
+      "type": "bool",
+      "default": false
+    },
+    "edtAddressLine1": {
+      "type": "varchar",
+      "maxLength": 255,
+      "isPersonalData": true
+    },
+    "edtAddressLine2": {
+      "type": "varchar",
+      "maxLength": 255,
+      "isPersonalData": true
+    },
+    "edtCity": {
+      "type": "varchar",
+      "maxLength": 100,
+      "isPersonalData": true
+    },
+    "edtState": {
+      "type": "varchar",
+      "maxLength": 100,
+      "isPersonalData": true
+    },
+    "edtPostalCode": {
+      "type": "varchar",
+      "maxLength": 20,
+      "isPersonalData": true
+    },
+    "edtCountry": {
+      "type": "varchar",
+      "maxLength": 100,
+      "default": "United States",
+      "isPersonalData": true
+    },
+    "edtDateOfBirth": {
+      "type": "date",
+      "isPersonalData": true
+    },
+    "marketingOptIn": {
+      "type": "enum",
+      "options": [
+        "Unknown",
+        "Opted In",
+        "Opted Out"
+      ],
+      "default": "Unknown"
+    },
+    "travelerStatus": {
+      "type": "enum",
+      "options": [
+        "Prospect",
+        "Customer",
+        "Inactive"
+      ],
+      "default": "Prospect"
+    },
+    "nameParseConfidence": {
+      "type": "enum",
+      "options": [
+        "Corrected",
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    "sourceNameExample": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "manualReviewNote": {
+      "type": "text"
+    },
+    "totalBookings": {
+      "type": "int",
+      "default": 0
+    },
+    "lifetimeSales": {
+      "type": "currency"
+    },
+    "lifetimeCommission": {
+      "type": "currency"
+    },
+    "lastTravelYear": {
+      "type": "int"
+    },
+    "vendorsBooked": {
+      "type": "text"
+    },
+    "marketingSegments": {
+      "type": "text"
+    }
+  },
+  "links": {
+    "household": {
+      "type": "belongsTo",
+      "entity": "EdtHousehold",
+      "foreign": "contacts"
+    },
+    "primaryHouseholds": {
+      "type": "hasMany",
+      "entity": "EdtHousehold",
+      "foreign": "primaryTraveler"
+    },
+    "primaryTrips": {
+      "type": "hasMany",
+      "entity": "EdtTrip",
+      "foreign": "primaryTraveler"
+    },
+    "primaryBookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "primaryTraveler"
+    },
+    "primaryQuotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "primaryContact"
+    },
+    "edtTripTravelers": {
+      "type": "hasMany",
+      "entity": "EdtTripTraveler",
+      "foreign": "contact"
+    },
+    "edtBookingTravelers": {
+      "type": "hasMany",
+      "entity": "EdtBookingTraveler",
+      "foreign": "contact"
+    },
+    "edtLoyaltyMemberships": {
+      "type": "hasMany",
+      "entity": "EdtLoyaltyMembership",
+      "foreign": "contact"
+    },
+    "edtSegmentMemberships": {
+      "type": "hasMany",
+      "entity": "EdtSegmentMembership",
+      "foreign": "contact"
+    }
+  },
+  "indexes": {
+    "edtExternalIdUnique": {
+      "columns": [
+        "edtExternalId"
+      ],
+      "unique": true
+    }
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "contact"
+        },
+        {
+          "name": "supplier"
+        }
+      ],
+      [
+        {
+          "name": "programName"
+        },
+        {
+          "name": "membershipNumber"
+        }
+      ],
+      [
+        {
+          "name": "tier"
+        },
+        {
+          "name": "status"
+        }
+      ],
+      [
+        {
+          "name": "verifiedDate"
+        },
+        false
+      ],
+      [
+        {
+          "name": "notes"
+        },
+        false
+      ]
+    ]
+  }
+]

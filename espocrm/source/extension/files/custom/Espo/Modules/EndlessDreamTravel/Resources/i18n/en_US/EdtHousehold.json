@@ -1,0 +1,32 @@
+{
+  "labels": {
+    "Create EdtHousehold": "Create Household"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Household External ID",
+    "primaryTraveler": "Primary Traveler",
+    "sourceNameLabels": "Source Name Labels",
+    "importReviewStatus": "Import Review Status",
+    "assignedUser": "Assigned User",
+    "teams": "Teams",
+    "description": "Description"
+  },
+  "links": {
+    "primaryTraveler": "Primary Traveler",
+    "contacts": "Clients",
+    "trips": "Trips",
+    "bookings": "Bookings",
+    "quotes": "Quotes",
+    "segmentMemberships": "Segment Memberships",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "options": {
+    "importReviewStatus": {
+      "Ready": "Ready",
+      "Needs Review": "Needs Review",
+      "Do Not Import": "Do Not Import"
+    }
+  }
+}

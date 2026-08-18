@@ -1,0 +1,24 @@
+[
+  {
+    "name": "name",
+    "link": true
+  },
+  {
+    "name": "contact"
+  },
+  {
+    "name": "supplier"
+  },
+  {
+    "name": "programName"
+  },
+  {
+    "name": "tier"
+  },
+  {
+    "name": "status"
+  },
+  {
+    "name": "verifiedDate"
+  }
+]

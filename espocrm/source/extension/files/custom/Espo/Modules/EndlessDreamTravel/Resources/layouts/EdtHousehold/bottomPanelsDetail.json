@@ -1,0 +1,17 @@
+[
+  {
+    "name": "contacts"
+  },
+  {
+    "name": "trips"
+  },
+  {
+    "name": "bookings"
+  },
+  {
+    "name": "quotes"
+  },
+  {
+    "name": "segmentMemberships"
+  }
+]

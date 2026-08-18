@@ -1,0 +1,41 @@
+{
+  "labels": {
+    "Create EdtQuote": "Create Travel Quote"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Travel Quote External ID",
+    "household": "Household",
+    "primaryContact": "Primary Client",
+    "supplier": "Supplier",
+    "convertedTrip": "Converted Trip",
+    "stage": "Stage",
+    "estimatedSale": "Estimated Sale",
+    "validUntil": "Valid Until",
+    "travelStartDate": "Travel Start Date",
+    "travelEndDate": "Travel End Date",
+    "destination": "Destination",
+    "attachments": "Attachments",
+    "notes": "Notes",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "links": {
+    "household": "Household",
+    "primaryContact": "Primary Client",
+    "supplier": "Supplier",
+    "convertedTrip": "Converted Trip",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "options": {
+    "stage": {
+      "Draft": "Draft",
+      "Sent": "Sent",
+      "Accepted": "Accepted",
+      "Declined": "Declined",
+      "Expired": "Expired",
+      "Converted": "Converted"
+    }
+  }
+}

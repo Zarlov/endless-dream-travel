@@ -60,7 +60,9 @@ if [[ "$(date +%m)" == 01 && 10#$(date +%d) -le 7 ]]; then
   cp -n --preserve=timestamps "$latest" "$annual_directory/"
 fi
 
-/usr/local/sbin/crm-backup-alert "$kind" up "Nightly $label backup completed, verified, and retained"
+if ! /usr/local/sbin/crm-backup-alert "$kind" up "Nightly $label backup completed, verified, and retained"; then
+  logger -t crm-backup-postprocess "Backup succeeded, but the $label Uptime Kuma heartbeat could not be delivered"
+fi
 
 if [[ "$kind" == application && -r /etc/default/crm-encrypted-export ]]; then
   source /etc/default/crm-encrypted-export

@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+kind="${1:?database or application required}"
+backup_mount="/mnt/osiris-proxmox-backups"
+retention_root="$backup_mount/CRM/retention"
+encrypted_root="/opt/backups/espocrm-encrypted-export"
+
+mountpoint -q "$backup_mount"
+
+case "$kind" in
+  database)
+    pattern='crm-postgres-*.sql.gz'
+    label='database'
+    ;;
+  application)
+    pattern='espocrm-*.tar.gz'
+    label='application'
+    ;;
+  *) exit 64 ;;
+esac
+
+latest="$({ find "$backup_mount" -xdev -maxdepth 6 -type f -name "$pattern" -mmin -180 -printf '%T@ %p\n' || true; } | sort -nr | head -n 1 | cut -d' ' -f2-)"
+[[ -n "$latest" && -s "$latest" ]]
+
+prune_to_count() {
+  local directory="$1"
+  local keep="$2"
+  local files=()
+  mapfile -t files < <(find "$directory" -maxdepth 1 -type f -name "$pattern" -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
+  if (( ${#files[@]} > keep )); then
+    rm -- "${files[@]:keep}"
+  fi
+}
+
+copy_tier() {
+  local tier="$1"
+  local keep="$2"
+  local directory="$retention_root/$label/$tier"
+  install -d -m 0700 "$directory"
+  cp -n --preserve=timestamps "$latest" "$directory/"
+  prune_to_count "$directory" "$keep"
+}
+
+copy_tier daily 14
+
+if [[ "$(date +%u)" == 7 ]]; then
+  copy_tier weekly 8
+fi
+
+if [[ "$(date +%d)" == 01 ]]; then
+  copy_tier monthly 12
+fi
+
+if [[ "$(date +%m)" == 01 && 10#$(date +%d) -le 7 ]]; then
+  records_year="$(date -d yesterday +%Y)"
+  annual_directory="$retention_root/$label/yearly/${records_year}-records"
+  install -d -m 0700 "$annual_directory"
+  cp -n --preserve=timestamps "$latest" "$annual_directory/"
+fi
+
+/usr/local/sbin/crm-backup-alert "$kind" up "Nightly $label backup completed, verified, and retained"
+
+if [[ "$kind" == application && -r /etc/default/crm-encrypted-export ]]; then
+  source /etc/default/crm-encrypted-export
+  db_latest="$({ find "$retention_root/database/daily" -maxdepth 1 -type f -name 'crm-postgres-*.sql.gz' -printf '%T@ %p\n' || true; } | sort -nr | head -n 1 | cut -d' ' -f2-)"
+  [[ -n "$db_latest" && -s "$db_latest" ]]
+  install -d -m 0700 "$encrypted_root"
+  stamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+  bundle="$(mktemp /opt/backups/espocrm-encrypted-export/.crm-offsite-XXXXXX.tar.gz)"
+  trap 'rm -f -- "$bundle"' EXIT
+  tar -czf "$bundle" -C "$(dirname "$db_latest")" "$(basename "$db_latest")" -C "$(dirname "$latest")" "$(basename "$latest")"
+  age -r "$AGE_RECIPIENT" -o "$encrypted_root/espocrm-offsite-$stamp.tar.gz.age" "$bundle"
+  rm -f -- "$bundle"
+  trap - EXIT
+  mapfile -t encrypted_files < <(find "$encrypted_root" -maxdepth 1 -type f -name 'espocrm-offsite-*.tar.gz.age' -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
+  if (( ${#encrypted_files[@]} > 14 )); then
+    rm -- "${encrypted_files[@]:14}"
+  fi
+fi

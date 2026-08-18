@@ -1,0 +1,6 @@
+[Unit]
+Description=Report CRM %i backup failure to Uptime Kuma
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/crm-backup-alert %i down "CRM %i backup failed on %H"

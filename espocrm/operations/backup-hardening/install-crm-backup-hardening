@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+[[ $EUID -eq 0 ]] || { echo 'Run with sudo.' >&2; exit 1; }
+source_dir="$(cd "$(dirname "$0")" && pwd)"
+
+apt-get update
+apt-get install -y age
+
+install -d -m 0755 /etc/systemd/system/postgres-backup.timer.d
+install -d -m 0755 /etc/systemd/system/espocrm-backup.timer.d
+install -d -m 0755 /etc/systemd/system/postgres-backup.service.d
+install -d -m 0755 /etc/systemd/system/espocrm-backup.service.d
+install -d -m 0700 /opt/backups/espocrm-encrypted-export
+
+install -m 0750 "$source_dir/crm-backup-alert" /usr/local/sbin/crm-backup-alert
+install -m 0750 "$source_dir/crm-backup-postprocess" /usr/local/sbin/crm-backup-postprocess
+install -m 0600 "$source_dir/crm-backup-alerts.secret" /etc/default/crm-backup-alerts
+install -m 0644 "$source_dir/crm-backup-alert@.service" /etc/systemd/system/crm-backup-alert@.service
+install -m 0644 "$source_dir/postgres-backup.timer.conf" /etc/systemd/system/postgres-backup.timer.d/schedule.conf
+install -m 0644 "$source_dir/espocrm-backup.timer.conf" /etc/systemd/system/espocrm-backup.timer.d/schedule.conf
+install -m 0644 "$source_dir/postgres-backup.service.conf" /etc/systemd/system/postgres-backup.service.d/hardening.conf
+install -m 0644 "$source_dir/espocrm-backup.service.conf" /etc/systemd/system/espocrm-backup.service.d/hardening.conf
+
+audit_file=/opt/backups/espocrm-retention-setting-before-standardization.txt
+{
+  echo "Existing retention audit captured $(date -Is)"
+  grep -Ein 'retention|mtime|mmin|delete|keep|prune' /usr/local/sbin/backup-postgres /usr/local/sbin/backup-espocrm || true
+} >"$audit_file"
+chmod 0600 "$audit_file"
+
+if [[ ! -f /home/ddriver/espocrm-offsite-recovery-key.txt ]]; then
+  age-keygen -o /home/ddriver/espocrm-offsite-recovery-key.txt
+  chown ddriver:ddriver /home/ddriver/espocrm-offsite-recovery-key.txt
+  chmod 0600 /home/ddriver/espocrm-offsite-recovery-key.txt
+fi
+recipient="$(age-keygen -y /home/ddriver/espocrm-offsite-recovery-key.txt)"
+printf 'AGE_RECIPIENT=%q\n' "$recipient" >/etc/default/crm-encrypted-export
+chmod 0600 /etc/default/crm-encrypted-export
+
+systemctl daemon-reload
+systemctl restart postgres-backup.timer espocrm-backup.timer
+systemctl enable postgres-backup.timer espocrm-backup.timer
+systemctl list-timers postgres-backup.timer espocrm-backup.timer --all --no-pager
+
+echo
+echo 'Installation complete.'
+echo 'IMPORTANT: Copy /home/ddriver/espocrm-offsite-recovery-key.txt to secure offline storage.'
+echo 'After confirming that copy, securely remove the VM copy.'
+echo 'Encrypted export bundles will appear in /opt/backups/espocrm-encrypted-export.'

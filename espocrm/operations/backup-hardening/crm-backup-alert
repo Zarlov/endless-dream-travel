@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+kind="${1:?backup kind required}"
+status="${2:?status required}"
+message="${3:-Backup service failed}"
+
+source /etc/default/crm-backup-alerts
+
+case "$kind" in
+  database|postgres) push_base="$POSTGRES_PUSH_BASE" ;;
+  application|espocrm) push_base="$ESPOCRM_PUSH_BASE" ;;
+  *) exit 64 ;;
+esac
+
+curl --fail --silent --show-error --max-time 15 \
+  --get "$push_base" \
+  --data-urlencode "status=$status" \
+  --data-urlencode "msg=$message" \
+  --data-urlencode "ping=" >/dev/null

@@ -5,7 +5,7 @@ umask 077
 kind="${1:?database or application required}"
 backup_mount="/mnt/osiris-proxmox-backups"
 retention_root="$backup_mount/CRM/retention"
-encrypted_root="/opt/backups/espocrm-encrypted-export"
+encrypted_root="$backup_mount/CRM/encrypted-archives"
 
 mountpoint -q "$backup_mount"
 
@@ -70,7 +70,7 @@ if [[ "$kind" == application && -r /etc/default/crm-encrypted-export ]]; then
   [[ -n "$db_latest" && -s "$db_latest" ]]
   install -d -m 0700 "$encrypted_root"
   stamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
-  bundle="$(mktemp /opt/backups/espocrm-encrypted-export/.crm-offsite-XXXXXX.tar.gz)"
+  bundle="$(mktemp /opt/backups/.crm-offsite-XXXXXX.tar.gz)"
   trap 'rm -f -- "$bundle"' EXIT
   tar -czf "$bundle" -C "$(dirname "$db_latest")" "$(basename "$db_latest")" -C "$(dirname "$latest")" "$(basename "$latest")"
   age -r "$AGE_RECIPIENT" -o "$encrypted_root/espocrm-offsite-$stamp.tar.gz.age" "$bundle"

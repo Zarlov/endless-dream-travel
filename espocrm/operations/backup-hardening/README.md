@@ -6,7 +6,7 @@ This package keeps the existing database and EspoCRM volume backup commands inta
 - Uptime Kuma success/failure heartbeats and 26-hour stale checks;
 - 14 daily, 8 weekly, and 12 monthly retained copies;
 - a permanent January 1 archive labeled `<prior-year>-records`;
-- an age-encrypted paired database/application export, with 14 local staging bundles.
+- an age-encrypted paired database/application export stored on OSIRIS under `CRM/encrypted-archives`, retaining 14 rolling bundles.
 
 Private Uptime Kuma URLs are stored only in `/etc/default/crm-backup-alerts` on the VM and are not part of this package or Git history.
 

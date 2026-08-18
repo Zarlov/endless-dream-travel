@@ -1,0 +1,26 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "primaryTraveler"
+        },
+        false
+      ],
+      [
+        {
+          "name": "description"
+        },
+        false
+      ]
+    ]
+  }
+]

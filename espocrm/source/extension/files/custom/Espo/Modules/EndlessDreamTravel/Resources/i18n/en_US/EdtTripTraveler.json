@@ -1,0 +1,26 @@
+{
+  "labels": {
+    "Create EdtTripTraveler": "Create Trip Traveler"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Trip Traveler External ID",
+    "trip": "Trip",
+    "contact": "Client",
+    "travelerRole": "Traveler Role",
+    "source": "Source",
+    "manualReviewRequired": "Manual Review Required"
+  },
+  "links": {
+    "trip": "Trip",
+    "contact": "Client"
+  },
+  "options": {
+    "travelerRole": {
+      "Primary": "Primary",
+      "Traveler": "Traveler",
+      "Guest": "Guest",
+      "Group Lead": "Group Lead"
+    }
+  }
+}

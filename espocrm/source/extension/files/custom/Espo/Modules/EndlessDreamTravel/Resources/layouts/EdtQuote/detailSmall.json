@@ -1,0 +1,66 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "household"
+        },
+        {
+          "name": "primaryContact"
+        }
+      ],
+      [
+        {
+          "name": "supplier"
+        },
+        {
+          "name": "stage"
+        }
+      ],
+      [
+        {
+          "name": "estimatedSale"
+        },
+        {
+          "name": "validUntil"
+        }
+      ],
+      [
+        {
+          "name": "travelStartDate"
+        },
+        {
+          "name": "travelEndDate"
+        }
+      ],
+      [
+        {
+          "name": "destination"
+        },
+        {
+          "name": "convertedTrip"
+        }
+      ],
+      [
+        {
+          "name": "attachments"
+        },
+        false
+      ],
+      [
+        {
+          "name": "notes"
+        },
+        false
+      ]
+    ]
+  }
+]

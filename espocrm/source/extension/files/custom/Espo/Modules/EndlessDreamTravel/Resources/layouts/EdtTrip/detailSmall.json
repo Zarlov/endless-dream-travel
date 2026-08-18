@@ -1,0 +1,66 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "household"
+        },
+        {
+          "name": "primaryTraveler"
+        }
+      ],
+      [
+        {
+          "name": "travelStartDate"
+        },
+        {
+          "name": "travelEndDate"
+        }
+      ],
+      [
+        {
+          "name": "status"
+        },
+        {
+          "name": "mainBooking"
+        }
+      ],
+      [
+        {
+          "name": "grossComponentValue"
+        },
+        {
+          "name": "balanceDueTotal"
+        }
+      ],
+      [
+        {
+          "name": "expectedCommissionTotal"
+        },
+        {
+          "name": "receivedCommissionTotal"
+        }
+      ],
+      [
+        {
+          "name": "groupingNote"
+        },
+        false
+      ],
+      [
+        {
+          "name": "description"
+        },
+        false
+      ]
+    ]
+  }
+]

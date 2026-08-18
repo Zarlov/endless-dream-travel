@@ -1,0 +1,35 @@
+{
+  "fields": {},
+  "links": {
+    "edtHouseholds": {
+      "type": "hasMany",
+      "entity": "EdtHousehold",
+      "foreign": "assignedUser"
+    },
+    "edtTrips": {
+      "type": "hasMany",
+      "entity": "EdtTrip",
+      "foreign": "assignedUser"
+    },
+    "edtBookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "assignedUser"
+    },
+    "edtCommissions": {
+      "type": "hasMany",
+      "entity": "EdtCommission",
+      "foreign": "assignedUser"
+    },
+    "edtQuotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "assignedUser"
+    },
+    "edtLoyaltyMemberships": {
+      "type": "hasMany",
+      "entity": "EdtLoyaltyMembership",
+      "foreign": "assignedUser"
+    }
+  }
+}

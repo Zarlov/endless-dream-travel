@@ -1,0 +1,42 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "segmentCode"
+        },
+        {
+          "name": "active"
+        }
+      ],
+      [
+        {
+          "name": "contact"
+        },
+        {
+          "name": "household"
+        }
+      ],
+      [
+        {
+          "name": "source"
+        },
+        {
+          "name": "lastEvaluatedDate"
+        }
+      ],
+      [
+        {
+          "name": "externalId"
+        },
+        false
+      ],
+      [
+        {
+          "name": "basis"
+        },
+        false
+      ]
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+[
+  "name",
+  "externalId",
+  "trip",
+  "household",
+  "primaryTraveler",
+  "supplier",
+  "confirmationNumber",
+  "componentType",
+  "componentRole",
+  "travelStartDate",
+  "travelEndDate",
+  "status",
+  "bookingYear",
+  "marketingCategory",
+  "importReviewStatus"
+]

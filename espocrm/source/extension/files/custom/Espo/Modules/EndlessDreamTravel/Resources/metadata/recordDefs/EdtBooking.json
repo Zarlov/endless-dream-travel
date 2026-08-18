@@ -1,0 +1,22 @@
+{
+  "beforeCreateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
+  ],
+  "beforeUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
+  ],
+  "afterCreateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals"
+  ],
+  "afterUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals"
+  ],
+  "afterDeleteHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals"
+  ]
+}

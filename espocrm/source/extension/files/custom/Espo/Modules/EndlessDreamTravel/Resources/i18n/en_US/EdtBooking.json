@@ -1,0 +1,114 @@
+{
+  "labels": {
+    "Create EdtBooking": "Create Booking"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Booking External ID",
+    "trip": "Trip",
+    "household": "Household",
+    "primaryTraveler": "Primary Traveler",
+    "supplier": "Supplier",
+    "confirmationNumber": "Confirmation Number",
+    "componentType": "Component Type",
+    "componentRole": "Component Role",
+    "parentComponent": "Parent Component",
+    "financialTreatment": "Financial Treatment",
+    "includedInParentPrice": "Included In Parent Price",
+    "reportableSale": "Reportable Sale",
+    "travelDateRaw": "Travel Date Raw",
+    "travelStartDate": "Travel Start Date",
+    "travelEndDate": "Travel End Date",
+    "serviceStartDate": "Service Start Date",
+    "serviceEndDate": "Service End Date",
+    "finalPaymentDueDate": "Final Payment Due Date",
+    "bookingYear": "Booking Year",
+    "status": "Status",
+    "grossSale": "Gross Sale",
+    "amountPaidToSupplier": "Amount Paid To Supplier",
+    "balanceDue": "Balance Due",
+    "expectedCommission": "Expected Commission",
+    "commissionPaidFlag": "Commission Paid Flag",
+    "bonusAmount": "Bonus Amount",
+    "bonusPaidFlag": "Bonus Paid Flag",
+    "feesFlag": "Fees Flag",
+    "thankYouSentFlag": "Thank You Sent Flag",
+    "cliaStateroomFlag": "Clia Stateroom Flag",
+    "cliaStateroomValue": "Clia Stateroom Value",
+    "onBoardExcursion": "On Board Excursion",
+    "marketingCategory": "Marketing Category",
+    "importReviewStatus": "Import Review Status",
+    "tripAssignmentConfidence": "Trip Assignment Confidence",
+    "tripAssignmentNote": "Trip Assignment Note",
+    "attachments": "Attachments",
+    "notes": "Notes",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "links": {
+    "trip": "Trip",
+    "household": "Household",
+    "primaryTraveler": "Primary Traveler",
+    "supplier": "Supplier",
+    "parentComponent": "Parent Component",
+    "childComponents": "Child Components",
+    "mainForTrips": "Main For Trips",
+    "bookingTravelers": "Booking Travelers",
+    "commissions": "Commissions",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "options": {
+    "componentType": {
+      "Cruise": "Cruise",
+      "Resort / Hotel": "Resort / Hotel",
+      "Theme Park Tickets": "Theme Park Tickets",
+      "Excursion / Tour": "Excursion / Tour",
+      "Transfer / Transportation": "Transfer / Transportation",
+      "Travel Insurance": "Travel Insurance",
+      "Air": "Air",
+      "Package": "Package",
+      "Other": "Other"
+    },
+    "componentRole": {
+      "Main Booking": "Main Booking",
+      "Add-on": "Add-on",
+      "Standalone Add-on (Review)": "Standalone Add-on (Review)"
+    },
+    "financialTreatment": {
+      "Separate Sale": "Separate Sale",
+      "Included in Parent Price": "Included in Parent Price",
+      "Non-Reportable": "Non-Reportable",
+      "Review": "Review"
+    },
+    "status": {
+      "Quoted": "Quoted",
+      "Booked": "Booked",
+      "Completed": "Completed",
+      "Canceled": "Canceled",
+      "Removed from Live Source": "Removed from Live Source"
+    },
+    "marketingCategory": {
+      "Cruise": "Cruise",
+      "Disney": "Disney",
+      "Universal": "Universal",
+      "Resort": "Resort",
+      "Tour / Excursion": "Tour / Excursion",
+      "Insurance": "Insurance",
+      "Transportation": "Transportation",
+      "Other": "Other"
+    },
+    "importReviewStatus": {
+      "Ready": "Ready",
+      "Needs Review": "Needs Review",
+      "Do Not Import - Removed from Live Source": "Do Not Import - Removed from Live Source"
+    },
+    "tripAssignmentConfidence": {
+      "Confirmed": "Confirmed",
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low",
+      "Needs Review": "Needs Review"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "accounts": "Vendors",
+    "account": "Primary Vendor",
+    "title": "Vendor Contact Title",
+    "edtExternalId": "Traveler External ID",
+    "household": "Household",
+    "isPrimaryHouseholdContact": "Primary Household Contact",
+    "edtAutoCreateHousehold": "Create Household Automatically",
+    "edtAddressLine1": "Address 1",
+    "edtAddressLine2": "Address 2",
+    "edtCity": "City",
+    "edtState": "State",
+    "edtPostalCode": "ZIP Code",
+    "edtCountry": "Country",
+    "edtDateOfBirth": "Date of Birth",
+    "marketingOptIn": "Marketing Opt-In",
+    "travelerStatus": "Traveler Status",
+    "nameParseConfidence": "Name Parse Confidence",
+    "sourceNameExample": "Source Name Example",
+    "manualReviewNote": "Manual Review Note",
+    "totalBookings": "Total Bookings",
+    "lifetimeSales": "Lifetime Sales",
+    "lifetimeCommission": "Lifetime Commission",
+    "lastTravelYear": "Last Travel Year",
+    "vendorsBooked": "Vendors Booked",
+    "marketingSegments": "Marketing Segments",
+    "edtUseHouseholdAddress": "Use Existing Household Address"
+  },
+  "links": {
+    "accounts": "Vendors",
+    "account": "Primary Vendor",
+    "household": "Household",
+    "primaryHouseholds": "Primary Households",
+    "primaryTrips": "Primary Trips",
+    "primaryBookings": "Primary Bookings",
+    "primaryQuotes": "Primary Quotes",
+    "edtTripTravelers": "Trip Travelers",
+    "edtBookingTravelers": "Booking Travelers",
+    "edtLoyaltyMemberships": "Loyalty Memberships",
+    "edtSegmentMemberships": "Segment Memberships"
+  },
+  "options": {
+    "marketingOptIn": {
+      "Unknown": "Unknown",
+      "Opted In": "Opted In",
+      "Opted Out": "Opted Out"
+    },
+    "travelerStatus": {
+      "Prospect": "Prospect",
+      "Customer": "Customer",
+      "Inactive": "Inactive"
+    },
+    "nameParseConfidence": {
+      "Corrected": "Corrected",
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low"
+    }
+  }
+}

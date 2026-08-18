@@ -1,0 +1,30 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "trip"
+        },
+        {
+          "name": "contact"
+        }
+      ],
+      [
+        {
+          "name": "travelerRole"
+        },
+        {
+          "name": "manualReviewRequired"
+        }
+      ],
+      [
+        {
+          "name": "externalId"
+        },
+        {
+          "name": "source"
+        }
+      ]
+    ]
+  }
+]

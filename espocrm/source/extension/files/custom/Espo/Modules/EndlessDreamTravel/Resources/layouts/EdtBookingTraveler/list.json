@@ -1,0 +1,15 @@
+[
+  {
+    "name": "booking",
+    "link": true
+  },
+  {
+    "name": "contact"
+  },
+  {
+    "name": "travelerRole"
+  },
+  {
+    "name": "manualReviewRequired"
+  }
+]

@@ -1,0 +1,132 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 60,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "contact": {
+      "type": "link",
+      "required": true
+    },
+    "supplier": {
+      "type": "link"
+    },
+    "programName": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 150
+    },
+    "membershipNumber": {
+      "type": "varchar",
+      "maxLength": 150,
+      "isPersonalData": true
+    },
+    "tier": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "status": {
+      "type": "enum",
+      "options": [
+        "Active",
+        "Inactive",
+        "Unknown"
+      ],
+      "default": "Active"
+    },
+    "verifiedDate": {
+      "type": "date"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "teams": {
+      "type": "linkMultiple"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "contact": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "edtLoyaltyMemberships"
+    },
+    "supplier": {
+      "type": "belongsTo",
+      "entity": "Account",
+      "foreign": "edtLoyaltyMemberships"
+    },
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtLoyaltyMemberships"
+    },
+    "teams": {
+      "type": "hasMany",
+      "entity": "Team",
+      "relationName": "entityTeam"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    },
+    "contactProgram": {
+      "columns": [
+        "contactId",
+        "programName"
+      ]
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

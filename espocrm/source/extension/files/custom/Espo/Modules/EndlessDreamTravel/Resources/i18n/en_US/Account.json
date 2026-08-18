@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "edtVendorExternalId": "Vendor External ID",
+    "edtVendor": "Is Travel Vendor",
+    "edtVendorType": "Vendor Type",
+    "edtSupplierCode": "Supplier Code",
+    "edtVendorStatus": "Vendor Status"
+  },
+  "links": {
+    "contacts": "Clients",
+    "edtBookings": "Bookings",
+    "edtCommissions": "Commissions",
+    "edtQuotes": "Travel Quotes",
+    "edtLoyaltyMemberships": "Loyalty Memberships"
+  }
+}

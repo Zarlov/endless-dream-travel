@@ -1,0 +1,20 @@
+[
+  {
+    "name": "name",
+    "link": true,
+    "width": 21
+  },
+  {
+    "name": "trip",
+    "width": 18
+  },
+  {
+    "name": "supplier"
+  },
+  {
+    "name": "confirmationNumber"
+  },
+  {
+    "name": "componentType"
+  }
+]

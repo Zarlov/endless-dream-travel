@@ -1,0 +1,318 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 50,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "trip": {
+      "type": "link"
+    },
+    "household": {
+      "type": "link"
+    },
+    "primaryTraveler": {
+      "type": "link"
+    },
+    "supplier": {
+      "type": "link"
+    },
+    "confirmationNumber": {
+      "type": "varchar",
+      "maxLength": 100,
+      "index": true
+    },
+    "componentType": {
+      "type": "enum",
+      "options": [
+        "Cruise",
+        "Resort / Hotel",
+        "Theme Park Tickets",
+        "Excursion / Tour",
+        "Transfer / Transportation",
+        "Travel Insurance",
+        "Air",
+        "Package",
+        "Other"
+      ]
+    },
+    "componentRole": {
+      "type": "enum",
+      "options": [
+        "Main Booking",
+        "Add-on",
+        "Standalone Add-on (Review)"
+      ],
+      "default": "Main Booking"
+    },
+    "parentComponent": {
+      "type": "link"
+    },
+    "financialTreatment": {
+      "type": "enum",
+      "options": [
+        "Separate Sale",
+        "Included in Parent Price",
+        "Non-Reportable",
+        "Review"
+      ],
+      "default": "Separate Sale"
+    },
+    "includedInParentPrice": {
+      "type": "bool",
+      "default": false
+    },
+    "reportableSale": {
+      "type": "bool",
+      "default": true
+    },
+    "travelDateRaw": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "travelStartDate": {
+      "type": "date"
+    },
+    "travelEndDate": {
+      "type": "date"
+    },
+    "serviceStartDate": {
+      "type": "date"
+    },
+    "serviceEndDate": {
+      "type": "date"
+    },
+    "finalPaymentDueDate": {
+      "type": "date"
+    },
+    "bookingYear": {
+      "type": "int",
+      "disableFormatting": true
+    },
+    "status": {
+      "type": "enum",
+      "options": [
+        "Quoted",
+        "Booked",
+        "Completed",
+        "Canceled",
+        "Removed from Live Source"
+      ],
+      "default": "Booked"
+    },
+    "grossSale": {
+      "type": "currency"
+    },
+    "amountPaidToSupplier": {
+      "type": "currency"
+    },
+    "balanceDue": {
+      "type": "currency"
+    },
+    "expectedCommission": {
+      "type": "currency"
+    },
+    "commissionPaidFlag": {
+      "type": "bool",
+      "default": false
+    },
+    "bonusAmount": {
+      "type": "currency"
+    },
+    "bonusPaidFlag": {
+      "type": "bool",
+      "default": false
+    },
+    "feesFlag": {
+      "type": "bool",
+      "default": false
+    },
+    "thankYouSentFlag": {
+      "type": "bool",
+      "default": false
+    },
+    "cliaStateroomFlag": {
+      "type": "bool",
+      "default": false
+    },
+    "cliaStateroomValue": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "onBoardExcursion": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "marketingCategory": {
+      "type": "enum",
+      "options": [
+        "Cruise",
+        "Disney",
+        "Universal",
+        "Resort",
+        "Tour / Excursion",
+        "Insurance",
+        "Transportation",
+        "Other"
+      ]
+    },
+    "importReviewStatus": {
+      "type": "enum",
+      "options": [
+        "Ready",
+        "Needs Review",
+        "Do Not Import - Removed from Live Source"
+      ],
+      "default": "Ready"
+    },
+    "tripAssignmentConfidence": {
+      "type": "enum",
+      "options": [
+        "Confirmed",
+        "High",
+        "Medium",
+        "Low",
+        "Needs Review"
+      ]
+    },
+    "tripAssignmentNote": {
+      "type": "text"
+    },
+    "attachments": {
+      "type": "attachmentMultiple",
+      "view": "endless-dream-travel:views/fields/quote-attachments"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "teams": {
+      "type": "linkMultiple"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "trip": {
+      "type": "belongsTo",
+      "entity": "EdtTrip",
+      "foreign": "bookings"
+    },
+    "household": {
+      "type": "belongsTo",
+      "entity": "EdtHousehold",
+      "foreign": "bookings"
+    },
+    "primaryTraveler": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "primaryBookings"
+    },
+    "supplier": {
+      "type": "belongsTo",
+      "entity": "Account",
+      "foreign": "edtBookings"
+    },
+    "parentComponent": {
+      "type": "belongsTo",
+      "entity": "EdtBooking",
+      "foreign": "childComponents"
+    },
+    "childComponents": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "foreign": "parentComponent"
+    },
+    "mainForTrips": {
+      "type": "hasMany",
+      "entity": "EdtTrip",
+      "foreign": "mainBooking"
+    },
+    "bookingTravelers": {
+      "type": "hasMany",
+      "entity": "EdtBookingTraveler",
+      "foreign": "booking",
+      "audited": true
+    },
+    "commissions": {
+      "type": "hasMany",
+      "entity": "EdtCommission",
+      "foreign": "booking",
+      "audited": true
+    },
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtBookings"
+    },
+    "teams": {
+      "type": "hasMany",
+      "entity": "Team",
+      "relationName": "entityTeam"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    },
+    "confirmationNumber": {
+      "columns": [
+        "confirmationNumber"
+      ]
+    },
+    "travelDates": {
+      "columns": [
+        "travelStartDate",
+        "travelEndDate"
+      ]
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

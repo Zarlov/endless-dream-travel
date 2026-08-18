@@ -1,0 +1,50 @@
+{
+  "labels": {
+    "Create EdtTrip": "Create Trip"
+  },
+  "fields": {
+    "name": "Name",
+    "externalId": "Trip External ID",
+    "household": "Household",
+    "primaryTraveler": "Primary Traveler",
+    "travelStartDate": "Travel Start Date",
+    "travelEndDate": "Travel End Date",
+    "mainBooking": "Main Booking",
+    "status": "Status",
+    "componentCount": "Component Count",
+    "grossComponentValue": "Gross Trip Cost",
+    "expectedCommissionTotal": "Expected Commission Total",
+    "receivedCommissionTotal": "Received Commission Total",
+    "balanceDueTotal": "Balance Due Total",
+    "importReviewStatus": "Import Review Status",
+    "groupingNote": "Grouping Note",
+    "assignedUser": "Assigned User",
+    "teams": "Teams",
+    "description": "Description"
+  },
+  "links": {
+    "household": "Household",
+    "primaryTraveler": "Primary Traveler",
+    "mainBooking": "Main Booking",
+    "bookings": "Bookings",
+    "tripTravelers": "Trip Travelers",
+    "quotes": "Quotes",
+    "assignedUser": "Assigned User",
+    "teams": "Teams"
+  },
+  "options": {
+    "status": {
+      "Proposed": "Proposed",
+      "Booked": "Booked",
+      "In Travel": "In Travel",
+      "Completed": "Completed",
+      "Canceled": "Canceled"
+    },
+    "importReviewStatus": {
+      "Proposed": "Proposed",
+      "Confirmed": "Confirmed",
+      "Needs Review": "Needs Review",
+      "Do Not Import": "Do Not Import"
+    }
+  }
+}

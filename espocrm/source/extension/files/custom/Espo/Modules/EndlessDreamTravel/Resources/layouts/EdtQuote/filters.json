@@ -1,0 +1,11 @@
+[
+  "name",
+  "externalId",
+  "household",
+  "primaryContact",
+  "supplier",
+  "stage",
+  "validUntil",
+  "travelStartDate",
+  "travelEndDate"
+]

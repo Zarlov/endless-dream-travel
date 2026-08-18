@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "maxLength": 180
+    },
+    "externalId": {
+      "type": "varchar",
+      "maxLength": 70,
+      "index": true,
+      "readOnlyAfterCreate": true
+    },
+    "contact": {
+      "type": "link"
+    },
+    "household": {
+      "type": "link"
+    },
+    "segmentCode": {
+      "type": "varchar",
+      "required": true,
+      "maxLength": 100,
+      "index": true
+    },
+    "basis": {
+      "type": "text"
+    },
+    "active": {
+      "type": "bool",
+      "default": true
+    },
+    "source": {
+      "type": "enum",
+      "options": [
+        "Imported",
+        "Calculated",
+        "Manual"
+      ],
+      "default": "Imported"
+    },
+    "lastEvaluatedDate": {
+      "type": "date"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true,
+      "customizationDisabled": true
+    },
+    "createdBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    },
+    "modifiedBy": {
+      "type": "link",
+      "readOnly": true,
+      "customizationDisabled": true,
+      "view": "views/fields/user"
+    }
+  },
+  "links": {
+    "contact": {
+      "type": "belongsTo",
+      "entity": "Contact",
+      "foreign": "edtSegmentMemberships"
+    },
+    "household": {
+      "type": "belongsTo",
+      "entity": "EdtHousehold",
+      "foreign": "segmentMemberships"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "modifiedBy": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "externalIdUnique": {
+      "columns": [
+        "externalId"
+      ],
+      "unique": true
+    },
+    "segmentCode": {
+      "columns": [
+        "segmentCode"
+      ]
+    }
+  },
+  "collection": {
+    "textFilterFields": [
+      "name",
+      "externalId"
+    ],
+    "orderBy": "createdAt",
+    "order": "desc"
+  },
+  "transactionalSave": true
+}

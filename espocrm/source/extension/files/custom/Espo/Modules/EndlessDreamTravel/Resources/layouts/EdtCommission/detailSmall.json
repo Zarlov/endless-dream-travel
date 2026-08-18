@@ -1,0 +1,50 @@
+[
+  {
+    "rows": [
+      [
+        {
+          "name": "name"
+        },
+        {
+          "name": "externalId"
+        }
+      ],
+      [
+        {
+          "name": "booking"
+        },
+        {
+          "name": "supplier"
+        }
+      ],
+      [
+        {
+          "name": "type"
+        },
+        {
+          "name": "status"
+        }
+      ],
+      [
+        {
+          "name": "expectedAmount"
+        },
+        {
+          "name": "receivedAmount"
+        }
+      ],
+      [
+        {
+          "name": "receivedDate"
+        },
+        false
+      ],
+      [
+        {
+          "name": "reconciliationNote"
+        },
+        false
+      ]
+    ]
+  }
+]

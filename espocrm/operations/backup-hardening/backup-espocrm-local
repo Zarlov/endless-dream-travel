@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+APP_CONTAINER="${ESPOCRM_BACKUP_APP_CONTAINER:-espocrm}"
+DAEMON_CONTAINER="${ESPOCRM_BACKUP_DAEMON_CONTAINER:-espocrm-daemon}"
+LOCAL_ROOT="${ESPOCRM_BACKUP_LOCAL_ROOT:-/opt/backups/espocrm}"
+LOCAL_RETENTION_DAYS="${ESPOCRM_BACKUP_LOCAL_RETENTION_DAYS:-14}"
+LOCK_FILE="/run/lock/espocrm-backup.lock"
+staging_dir=""
+temporary_archive=""
+services_stopped=false
+
+wait_healthy() {
+  local container_name="$1"
+  for _ in $(seq 1 90); do
+    local status
+    status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_name" 2>/dev/null || true)"
+    [[ "$status" == "healthy" || "$status" == "running" ]] && return 0
+    sleep 2
+  done
+  return 1
+}
+
+cleanup() {
+  local exit_code=$?
+  trap - EXIT
+  if [[ "$services_stopped" == true ]]; then
+    docker start "$APP_CONTAINER" >/dev/null 2>&1 || true
+    wait_healthy "$APP_CONTAINER" || true
+    docker start "$DAEMON_CONTAINER" >/dev/null 2>&1 || true
+  fi
+  [[ -z "$temporary_archive" ]] || rm -f -- "$temporary_archive"
+  [[ -z "$staging_dir" ]] || rm -rf -- "$staging_dir"
+  exit "$exit_code"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+[[ "${EUID}" -eq 0 ]] || { echo "This backup must run as root." >&2; exit 1; }
+for command_name in docker tar sha256sum mountpoint find flock install mktemp grep; do
+  command -v "$command_name" >/dev/null 2>&1 || { echo "Required command not found: $command_name" >&2; exit 1; }
+done
+for value in "$LOCAL_RETENTION_DAYS"; do
+  [[ "$value" =~ ^[0-9]+$ ]] || { echo "Retention values must be numeric." >&2; exit 1; }
+done
+for path in "$LOCAL_ROOT"; do
+  [[ "$path" == /* && "$path" != "/" ]] || { echo "Refusing unsafe path: $path" >&2; exit 1; }
+done
+
+exec 9>"$LOCK_FILE"
+flock -n 9 || { echo "Another EspoCRM backup is already running." >&2; exit 1; }
+install -d -m 0700 "$LOCAL_ROOT"
+for container_name in "$APP_CONTAINER" "$DAEMON_CONTAINER"; do
+  docker inspect "$container_name" >/dev/null
+  [[ "$(docker inspect --format '{{.State.Running}}' "$container_name")" == "true" ]] || {
+    echo "Required container is not running: $container_name" >&2
+    exit 1
+  }
+done
+
+timestamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+archive_name="espocrm-${timestamp}.tar.gz"
+archive_path="${LOCAL_ROOT}/${archive_name}"
+checksum_path="${archive_path}.sha256"
+temporary_archive="${LOCAL_ROOT}/.${archive_name}.tmp"
+staging_dir="$(mktemp -d "${LOCAL_ROOT}/.espocrm-staging.XXXXXX")"
+install -d -m 0700 "${staging_dir}/data" "${staging_dir}/custom" "${staging_dir}/client-custom"
+
+docker stop --time 30 "$DAEMON_CONTAINER" "$APP_CONTAINER" >/dev/null
+services_stopped=true
+
+docker cp --archive "${APP_CONTAINER}:/var/www/html/data/." "${staging_dir}/data/"
+docker cp --archive "${APP_CONTAINER}:/var/www/html/custom/." "${staging_dir}/custom/"
+docker cp --archive "${APP_CONTAINER}:/var/www/html/client/custom/." "${staging_dir}/client-custom/"
+[[ -s "${staging_dir}/data/config.php" ]] || { echo "EspoCRM data/config.php is missing." >&2; exit 1; }
+
+docker start "$APP_CONTAINER" >/dev/null
+wait_healthy "$APP_CONTAINER" || { echo "EspoCRM did not become healthy after backup." >&2; exit 1; }
+docker start "$DAEMON_CONTAINER" >/dev/null
+wait_healthy "$DAEMON_CONTAINER" || { echo "EspoCRM daemon did not become healthy after backup." >&2; exit 1; }
+services_stopped=false
+
+tar -czf "$temporary_archive" -C "$staging_dir" .
+tar -tzf "$temporary_archive" > "${staging_dir}/archive-contents.txt"
+grep -q '^./data/config.php$' "${staging_dir}/archive-contents.txt"
+mv "$temporary_archive" "$archive_path"
+temporary_archive=""
+(
+  cd "$LOCAL_ROOT"
+  sha256sum "$archive_name" > "${archive_name}.sha256"
+)
+find "$LOCAL_ROOT" -maxdepth 1 -type f \( -name 'espocrm-*.tar.gz' -o -name 'espocrm-*.tar.gz.sha256' \) -mtime "+$LOCAL_RETENTION_DAYS" -delete
+
+echo "Local EspoCRM application-volume backup completed and verified: $archive_name"

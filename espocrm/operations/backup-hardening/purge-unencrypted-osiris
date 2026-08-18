@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+backup_mount="/mnt/osiris-proxmox-backups"
+encrypted_daily="$backup_mount/CRM/encrypted-archives/daily"
+
+[[ $EUID -eq 0 ]] || { echo 'Run with sudo.' >&2; exit 1; }
+mountpoint -q "$backup_mount"
+
+latest_checksum="$(find "$encrypted_daily" -maxdepth 1 -type f -name 'espocrm-complete-*.tar.gz.age.sha256' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+[[ -n "$latest_checksum" && -s "$latest_checksum" ]]
+(cd "$encrypted_daily" && sha256sum -c "$(basename "$latest_checksum")")
+
+postgres_root="$backup_mount/CRM-PostgreSQL"
+application_root="$backup_mount/EspoCRM"
+legacy_retention="$backup_mount/CRM/retention"
+
+for root in "$postgres_root" "$application_root" "$legacy_retention"; do
+  [[ "$root" == "$backup_mount"/* && "$root" != "$backup_mount" ]]
+done
+
+find "$postgres_root" -maxdepth 1 -type f \
+  \( -name 'crm-postgres-*.sql.gz' -o -name 'crm-postgres-*.sql.gz.sha256' \) -delete 2>/dev/null || true
+find "$application_root" -maxdepth 1 -type f \
+  \( -name 'espocrm-*.tar.gz' -o -name 'espocrm-*.tar.gz.sha256' \) -delete 2>/dev/null || true
+find "$legacy_retention/database" "$legacy_retention/application" -type f \
+  \( -name 'crm-postgres-*.sql.gz' -o -name 'crm-postgres-*.sql.gz.sha256' -o -name 'espocrm-*.tar.gz' -o -name 'espocrm-*.tar.gz.sha256' \) \
+  -delete 2>/dev/null || true
+
+echo 'Verified encrypted archive exists; unencrypted OSIRIS CRM archives removed.'

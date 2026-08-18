@@ -10,8 +10,9 @@ The CRM VM uses two enabled persistent systemd timers:
 
 | Protection | Schedule (UTC) | Destination | Validation |
 | --- | --- | --- | --- |
-| PostgreSQL database | 03:15 nightly, randomized by up to 15 minutes | OSIRIS `ProxmoxBackups` share | compressed dump checksum |
-| EspoCRM application volumes, including uploaded attachments and custom files | 03:45 nightly, randomized by up to 5 minutes | OSIRIS `ProxmoxBackups` share | archive checksum |
+| PostgreSQL database | 02:30 nightly, America/New_York | CRM VM, readable for 14 days | compressed dump checksum |
+| EspoCRM application volumes, including uploaded attachments and custom files | 02:45 nightly, America/New_York | CRM VM, readable for 14 days | archive checksum |
+| Paired database and application archive | after the 02:45 job | OSIRIS `CRM/encrypted-archives` | age encryption plus encrypted-file checksum |
 
 The services are `postgres-backup.service` and `espocrm-backup.service`; their timers are `postgres-backup.timer` and `espocrm-backup.timer`. Both timers use `Persistent=true`, so a missed run is started after the VM returns.
 
@@ -20,7 +21,7 @@ The successful 2026-08-18 runs produced and verified:
 - `crm-postgres-2026-08-18T031804Z.sql.gz`
 - `espocrm-2026-08-18T034949Z.tar.gz`
 
-The database and application backup must be restored as a matching pair when attachments or customizations matter.
+OSIRIS stores only encrypted CRM archives. The separate private recovery key is required to decrypt them. Each encrypted package contains a matching database dump, application archive, and their original checksums.
 
 ## Daily check
 
@@ -43,12 +44,13 @@ A checksum proves that an archive was written without corruption. It does not re
 
 ## Retention and resilience target
 
-Use a minimum grandfather-father-son policy for customer data:
+The encrypted OSIRIS archives use this grandfather-father-son policy:
 
 - 14 daily recovery points
 - 8 weekly recovery points
 - 12 monthly recovery points
-- at least one encrypted copy outside the CRM VM and outside OSIRIS
+- permanent yearly archives labeled for the prior year's records
+- periodic encrypted offline USB copies for a recovery point outside both the CRM VM and OSIRIS
 
 The VM backup, PostgreSQL dump, and application-volume archive protect different failure modes and should all remain enabled. A VM snapshot alone is not a substitute for an application-consistent database dump.
 

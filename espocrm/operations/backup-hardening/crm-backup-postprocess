@@ -4,80 +4,102 @@ umask 077
 
 kind="${1:?database or application required}"
 backup_mount="/mnt/osiris-proxmox-backups"
-retention_root="$backup_mount/CRM/retention"
 encrypted_root="$backup_mount/CRM/encrypted-archives"
+database_local="/opt/backups/postgres"
+application_local="/opt/backups/espocrm"
 
+if [[ "$kind" == database ]]; then
+  if ! /usr/local/sbin/crm-backup-alert database up "Local database backup completed and verified"; then
+    logger -t crm-backup-postprocess 'Database backup succeeded, but its heartbeat could not be delivered'
+  fi
+  exit 0
+fi
+
+[[ "$kind" == application ]] || exit 64
+
+mountpoint -q "$backup_mount" || mount "$backup_mount"
 mountpoint -q "$backup_mount"
+source /etc/default/crm-encrypted-export
 
-case "$kind" in
-  database)
-    pattern='crm-postgres-*.sql.gz'
-    label='database'
-    ;;
-  application)
-    pattern='espocrm-*.tar.gz'
-    label='application'
-    ;;
-  *) exit 64 ;;
-esac
+newest_file() {
+  local directory="$1"
+  local pattern="$2"
+  find "$directory" -maxdepth 1 -type f -name "$pattern" -mmin -180 -printf '%T@ %p\n' \
+    | sort -nr | head -n 1 | cut -d' ' -f2-
+}
 
-latest="$({ find "$backup_mount" -xdev -maxdepth 6 -type f -name "$pattern" -mmin -180 -printf '%T@ %p\n' || true; } | sort -nr | head -n 1 | cut -d' ' -f2-)"
-[[ -n "$latest" && -s "$latest" ]]
+database_archive="$(newest_file "$database_local" 'crm-postgres-*.sql.gz')"
+application_archive="$(newest_file "$application_local" 'espocrm-*.tar.gz')"
+[[ -s "$database_archive" && -s "${database_archive}.sha256" ]]
+[[ -s "$application_archive" && -s "${application_archive}.sha256" ]]
 
-prune_to_count() {
+(cd "$database_local" && sha256sum -c "$(basename "${database_archive}.sha256")")
+(cd "$application_local" && sha256sum -c "$(basename "${application_archive}.sha256")")
+
+install -d -m 0700 "$encrypted_root/daily" "$encrypted_root/weekly" "$encrypted_root/monthly" "$encrypted_root/yearly"
+stamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+archive_name="espocrm-complete-${stamp}.tar.gz.age"
+temporary_bundle="$(mktemp /opt/backups/.espocrm-complete-XXXXXX.tar.gz)"
+temporary_encrypted="$(mktemp "$encrypted_root/daily/.espocrm-complete-XXXXXX.age")"
+trap 'rm -f -- "$temporary_bundle" "$temporary_encrypted"' EXIT
+
+tar -czf "$temporary_bundle" \
+  -C "$database_local" "$(basename "$database_archive")" "$(basename "${database_archive}.sha256")" \
+  -C "$application_local" "$(basename "$application_archive")" "$(basename "${application_archive}.sha256")"
+tar -tzf "$temporary_bundle" >/dev/null
+age -r "$AGE_RECIPIENT" -o "$temporary_encrypted" "$temporary_bundle"
+test -s "$temporary_encrypted"
+mv "$temporary_encrypted" "$encrypted_root/daily/$archive_name"
+(
+  cd "$encrypted_root/daily"
+  sha256sum "$archive_name" >"${archive_name}.sha256"
+  sha256sum -c "${archive_name}.sha256"
+)
+rm -f -- "$temporary_bundle"
+trap - EXIT
+
+copy_with_checksum() {
+  local source_directory="$1"
+  local destination_directory="$2"
+  install -d -m 0700 "$destination_directory"
+  cp --update=none --preserve=timestamps \
+    "$source_directory/$archive_name" "$source_directory/${archive_name}.sha256" \
+    "$destination_directory/"
+}
+
+prune_archives() {
   local directory="$1"
   local keep="$2"
-  local files=()
-  mapfile -t files < <(find "$directory" -maxdepth 1 -type f -name "$pattern" -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
-  if (( ${#files[@]} > keep )); then
-    rm -- "${files[@]:keep}"
+  local archives=()
+  mapfile -t archives < <(find "$directory" -maxdepth 1 -type f -name 'espocrm-complete-*.tar.gz.age' -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
+  if (( ${#archives[@]} > keep )); then
+    local archive
+    for archive in "${archives[@]:keep}"; do
+      rm -f -- "$archive" "${archive}.sha256"
+    done
   fi
 }
 
-copy_tier() {
-  local tier="$1"
-  local keep="$2"
-  local directory="$retention_root/$label/$tier"
-  install -d -m 0700 "$directory"
-  cp -n --preserve=timestamps "$latest" "$directory/"
-  prune_to_count "$directory" "$keep"
-}
-
-copy_tier daily 14
+prune_archives "$encrypted_root/daily" 14
 
 if [[ "$(date +%u)" == 7 ]]; then
-  copy_tier weekly 8
+  copy_with_checksum "$encrypted_root/daily" "$encrypted_root/weekly"
+  prune_archives "$encrypted_root/weekly" 8
 fi
 
 if [[ "$(date +%d)" == 01 ]]; then
-  copy_tier monthly 12
+  copy_with_checksum "$encrypted_root/daily" "$encrypted_root/monthly"
+  prune_archives "$encrypted_root/monthly" 12
 fi
 
 if [[ "$(date +%m)" == 01 && 10#$(date +%d) -le 7 ]]; then
   records_year="$(date -d yesterday +%Y)"
-  annual_directory="$retention_root/$label/yearly/${records_year}-records"
-  install -d -m 0700 "$annual_directory"
-  cp -n --preserve=timestamps "$latest" "$annual_directory/"
-fi
-
-if ! /usr/local/sbin/crm-backup-alert "$kind" up "Nightly $label backup completed, verified, and retained"; then
-  logger -t crm-backup-postprocess "Backup succeeded, but the $label Uptime Kuma heartbeat could not be delivered"
-fi
-
-if [[ "$kind" == application && -r /etc/default/crm-encrypted-export ]]; then
-  source /etc/default/crm-encrypted-export
-  db_latest="$({ find "$retention_root/database/daily" -maxdepth 1 -type f -name 'crm-postgres-*.sql.gz' -printf '%T@ %p\n' || true; } | sort -nr | head -n 1 | cut -d' ' -f2-)"
-  [[ -n "$db_latest" && -s "$db_latest" ]]
-  install -d -m 0700 "$encrypted_root"
-  stamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
-  bundle="$(mktemp /opt/backups/.crm-offsite-XXXXXX.tar.gz)"
-  trap 'rm -f -- "$bundle"' EXIT
-  tar -czf "$bundle" -C "$(dirname "$db_latest")" "$(basename "$db_latest")" -C "$(dirname "$latest")" "$(basename "$latest")"
-  age -r "$AGE_RECIPIENT" -o "$encrypted_root/espocrm-offsite-$stamp.tar.gz.age" "$bundle"
-  rm -f -- "$bundle"
-  trap - EXIT
-  mapfile -t encrypted_files < <(find "$encrypted_root" -maxdepth 1 -type f -name 'espocrm-offsite-*.tar.gz.age' -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
-  if (( ${#encrypted_files[@]} > 14 )); then
-    rm -- "${encrypted_files[@]:14}"
+  yearly_directory="$encrypted_root/yearly/${records_year}-records"
+  if ! find "$yearly_directory" -maxdepth 1 -type f -name 'espocrm-complete-*.tar.gz.age' -print -quit 2>/dev/null | grep -q .; then
+    copy_with_checksum "$encrypted_root/daily" "$yearly_directory"
   fi
+fi
+
+if ! /usr/local/sbin/crm-backup-alert application up "Encrypted database, files, and attachments backup completed and verified on OSIRIS"; then
+  logger -t crm-backup-postprocess 'Encrypted OSIRIS backup succeeded, but its heartbeat could not be delivered'
 fi

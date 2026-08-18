@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+CONTAINER_NAME="${POSTGRES_BACKUP_CONTAINER:-crm-postgres}"
+LOCAL_ROOT="${POSTGRES_BACKUP_LOCAL_ROOT:-/opt/backups/postgres}"
+LOCAL_RETENTION_DAYS="${POSTGRES_BACKUP_LOCAL_RETENTION_DAYS:-14}"
+LOCK_FILE="/run/lock/postgres-backup.lock"
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "Required command not found: $1" >&2
+    exit 1
+  }
+}
+
+validate_root() {
+  local path="$1"
+  [[ "$path" == /* && "$path" != "/" ]] || {
+    echo "Refusing unsafe backup path: $path" >&2
+    exit 1
+  }
+}
+
+[[ "${EUID}" -eq 0 ]] || {
+  echo "This backup must run as root." >&2
+  exit 1
+}
+
+for command_name in docker gzip sha256sum mountpoint find flock install; do
+  require_command "$command_name"
+done
+
+[[ "$LOCAL_RETENTION_DAYS" =~ ^[0-9]+$ ]] || {
+  echo "Invalid local retention: $LOCAL_RETENTION_DAYS" >&2
+  exit 1
+}
+validate_root "$LOCAL_ROOT"
+
+exec 9>"$LOCK_FILE"
+flock -n 9 || {
+  echo "Another PostgreSQL backup is already running." >&2
+  exit 1
+}
+
+install -d -m 0700 "$LOCAL_ROOT"
+
+docker inspect "$CONTAINER_NAME" >/dev/null
+
+[[ "$(docker inspect --format '{{.State.Running}}' "$CONTAINER_NAME")" == "true" ]] || {
+  echo "PostgreSQL container is not running: $CONTAINER_NAME" >&2
+  exit 1
+}
+
+timestamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+archive_name="crm-postgres-${timestamp}.sql.gz"
+archive_path="${LOCAL_ROOT}/${archive_name}"
+checksum_path="${archive_path}.sha256"
+temporary_archive="${LOCAL_ROOT}/.${archive_name}.tmp"
+
+cleanup() {
+  rm -f -- "$temporary_archive"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+docker exec "$CONTAINER_NAME" sh -ceu \
+  'exec pg_dumpall --quote-all-identifiers --username "$POSTGRES_USER"' \
+  | gzip -9 > "$temporary_archive"
+
+test -s "$temporary_archive"
+gzip -t "$temporary_archive"
+mv "$temporary_archive" "$archive_path"
+
+(
+  cd "$LOCAL_ROOT"
+  sha256sum "$archive_name" > "${archive_name}.sha256"
+)
+
+find "$LOCAL_ROOT" -maxdepth 1 -type f \
+  \( -name 'crm-postgres-*.sql.gz' -o -name 'crm-postgres-*.sql.gz.sha256' \) \
+  -mtime "+$LOCAL_RETENTION_DAYS" -delete
+
+echo "Local PostgreSQL backup completed and verified: $archive_name"

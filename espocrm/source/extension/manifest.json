@@ -1,13 +1,13 @@
 {
   "name": "Endless Dream Travel Data Model",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "acceptableVersions": [
     ">=10.0.0 <11.0.0"
   ],
   "php": [
     ">=8.2"
   ],
-  "releaseDate": "2026-08-16",
+  "releaseDate": "2026-08-20",
   "author": "Endless Dream Travel",
-  "description": "Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.27 enables relationship matching by External ID during CSV imports."
+  "description": "Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.28 adds the Endless Dream ship browser-tab icon."
 }

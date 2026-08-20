@@ -23,12 +23,12 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.27',
+  version: '1.0.28',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
-  releaseDate: '2026-08-16',
+  releaseDate: '2026-08-20',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.27 enables relationship matching by External ID during CSV imports.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.28 adds the Endless Dream ship browser-tab icon.'
 });
 
 const auditFields = {
@@ -875,8 +875,22 @@ moduleWrite('Resources/metadata/recordDefs/EdtQuote.json', {
 });
 
 moduleWrite('Resources/metadata/app/client.json', {
-  cssList: ['__APPEND__', 'client/custom/modules/endless-dream-travel/css/branding-v1.0.18.css']
+  cssList: ['__APPEND__', 'client/custom/modules/endless-dream-travel/css/branding-v1.0.18.css'],
+  scriptList: ['__APPEND__', 'client/custom/modules/endless-dream-travel/js/favicon-v1.0.28.js']
 });
+write('files/client/custom/modules/endless-dream-travel/js/favicon-v1.0.28.js', `(function () {
+  const href = 'client/custom/modules/endless-dream-travel/img/favicon.svg?v=1.0.28';
+  const links = [...document.querySelectorAll('link[rel~="icon"]')];
+  if (!links.length) {
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/svg+xml';
+    document.head.appendChild(link);
+    links.push(link);
+  }
+  for (const link of links) link.href = href;
+})();
+`);
 write('files/client/custom/modules/endless-dream-travel/css/branding-v1.0.18.css', `.edt-ship-icon {
     display: inline-block !important;
     width: 1.15em;
@@ -908,6 +922,9 @@ fs.mkdirSync(path.dirname(shipLogoTarget), { recursive: true });
 fs.copyFileSync(path.resolve('work/brand-logo-ship.png'), shipLogoTarget);
 fs.copyFileSync(path.resolve('work/brand-logo-black-text.png'), path.join(path.dirname(shipLogoTarget), 'logo-light.png'));
 fs.copyFileSync(path.resolve('work/brand-logo-crm-horizontal.png'), path.join(path.dirname(shipLogoTarget), 'logo-dark.png'));
+for (const faviconFile of ['favicon.ico', 'favicon-196.png', 'favicon.svg']) {
+  fs.copyFileSync(path.resolve('work/crm-favicon', faviconFile), path.join(path.dirname(shipLogoTarget), faviconFile));
+}
 
 const pretty = s => s.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
 const global = { scopeNames: {}, scopeNamesPlural: {} };
@@ -938,6 +955,6 @@ contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
 moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Supplier Code', edtVendorStatus:'Vendor Status' }, links: { contacts:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.5\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.5 improves traveler, address, quote and automatic trip-total workflows while preserving import identity fields.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.28\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.28 adds the Endless Dream ship browser-tab icon while preserving the existing data model and workflows.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

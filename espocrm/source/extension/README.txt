@@ -1,9 +1,9 @@
-Endless Dream Travel Data Model 1.0.5
+Endless Dream Travel Data Model 1.0.28
 
 Target: EspoCRM 10.x
 
 Creates nine travel entities and extends Contact and Account. No client data is included.
-Version 1.0.5 improves traveler, address, quote and automatic trip-total workflows while preserving import identity fields.
+Version 1.0.28 adds the Endless Dream ship browser-tab icon while preserving the existing data model and workflows.
 Install from Administration > Extensions, then confirm the automatic rebuild completed.
 Review roles before importing data.
 

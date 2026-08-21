@@ -23,12 +23,12 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.28',
+  version: '1.0.32',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
-  releaseDate: '2026-08-20',
+  releaseDate: '2026-08-21',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.28 adds the Endless Dream ship browser-tab icon.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.32 adds automatic nested-record context, household travelers, vendor-client history and consistent Vendor terminology.'
 });
 
 const auditFields = {
@@ -98,7 +98,6 @@ class AfterCreateHousehold implements SaveHook
             'name' => ($baseName ?: 'New Traveler') . ' Household',
             'externalId' => 'HH-' . strtoupper(bin2hex(random_bytes(5))),
             'primaryTravelerId' => $entity->getId(),
-            'importReviewStatus' => 'Ready',
             'assignedUserId' => $entity->get('assignedUserId'),
         ]);
         $this->entityManager->saveEntity($household);
@@ -608,14 +607,280 @@ write('files/client/custom/modules/endless-dream-travel/src/views/fields/quote-a
 });
 `);
 
+write('files/client/custom/modules/endless-dream-travel/src/views/fields/booking-year.js', `define('endless-dream-travel:views/fields/booking-year', ['views/fields/int'], function (IntFieldView) {
+    return class extends IntFieldView {
+        setup() {
+            super.setup();
+
+            if (!this.model.id && !this.model.get(this.name)) {
+                this.model.set(this.name, new Date().getFullYear());
+            }
+        }
+    };
+});
+`);
+
+moduleWrite('Classes/RecordHooks/Common/InheritTravelContext.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+
+class InheritTravelContext implements SaveHook
+{
+    public function __construct(private EntityManager $entityManager)
+    {}
+
+    public function process(Entity $entity): void
+    {
+        $type = $entity->getEntityType();
+
+        if ($type === 'EdtTrip') {
+            $this->fillFromHousehold($entity, 'primaryTravelerId');
+            return;
+        }
+
+        if ($type === 'EdtBooking') {
+            if (!$entity->get('bookingYear')) {
+                $entity->set('bookingYear', (int) date('Y'));
+            }
+
+            $parent = $this->getEntity('EdtBooking', $entity->get('parentComponentId'));
+            if ($parent) {
+                $this->copy($parent, $entity, ['tripId', 'householdId', 'primaryTravelerId', 'supplierId', 'travelStartDate', 'travelEndDate']);
+            }
+
+            $trip = $this->getEntity('EdtTrip', $entity->get('tripId'));
+            if ($trip) {
+                $this->copy($trip, $entity, ['householdId', 'primaryTravelerId', 'travelStartDate', 'travelEndDate']);
+            }
+
+            $this->fillFromHousehold($entity, 'primaryTravelerId');
+            return;
+        }
+
+        if ($type === 'EdtQuote') {
+            $booking = $this->getEntity('EdtBooking', $entity->get('bookingId'));
+            if ($booking) {
+                $this->copy($booking, $entity, ['householdId', 'supplierId', 'travelStartDate', 'travelEndDate']);
+                if (!$entity->get('primaryContactId') && $booking->get('primaryTravelerId')) {
+                    $entity->set('primaryContactId', $booking->get('primaryTravelerId'));
+                }
+                if (!$entity->get('convertedTripId') && $booking->get('tripId')) {
+                    $entity->set('convertedTripId', $booking->get('tripId'));
+                }
+            }
+
+            $trip = $this->getEntity('EdtTrip', $entity->get('convertedTripId'));
+            if ($trip) {
+                $this->copy($trip, $entity, ['householdId', 'travelStartDate', 'travelEndDate']);
+                if (!$entity->get('primaryContactId') && $trip->get('primaryTravelerId')) {
+                    $entity->set('primaryContactId', $trip->get('primaryTravelerId'));
+                }
+            }
+
+            $this->fillFromHousehold($entity, 'primaryContactId');
+        }
+    }
+
+    private function fillFromHousehold(Entity $entity, string $primaryField): void
+    {
+        if ($entity->get($primaryField) || !$entity->get('householdId')) {
+            return;
+        }
+
+        $household = $this->getEntity('EdtHousehold', $entity->get('householdId'));
+        if ($household && $household->get('primaryTravelerId')) {
+            $entity->set($primaryField, $household->get('primaryTravelerId'));
+        }
+    }
+
+    private function copy(Entity $source, Entity $target, array $fieldList): void
+    {
+        foreach ($fieldList as $field) {
+            if (!$target->get($field) && $source->get($field)) {
+                $target->set($field, $source->get($field));
+            }
+        }
+    }
+
+    private function getEntity(string $type, mixed $id): ?Entity
+    {
+        return $id ? $this->entityManager->getEntityById($type, (string) $id) : null;
+    }
+}
+`);
+
+moduleWrite('Classes/RecordHooks/Common/SyncHouseholdTravelers.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+
+class SyncHouseholdTravelers implements SaveHook
+{
+    public function __construct(private EntityManager $entityManager)
+    {}
+
+    public function process(Entity $entity): void
+    {
+        if (!$entity->hasId() || !$entity->get('householdId')) {
+            return;
+        }
+
+        $members = $this->entityManager->getRDBRepository('Contact')
+            ->where(['householdId' => $entity->get('householdId')])
+            ->find();
+
+        if ($entity->getEntityType() === 'EdtTrip') {
+            foreach ($members as $member) {
+                $this->ensureTraveler('EdtTripTraveler', 'tripId', $entity, $member, $entity->get('primaryTravelerId'));
+            }
+            return;
+        }
+
+        if ($entity->getEntityType() === 'EdtBooking') {
+            foreach ($members as $member) {
+                $this->ensureTraveler('EdtBookingTraveler', 'bookingId', $entity, $member, $entity->get('primaryTravelerId'));
+            }
+            return;
+        }
+
+        if ($entity->getEntityType() === 'EdtQuote') {
+            $relation = $this->entityManager->getRDBRepository('EdtQuote')->getRelation($entity, 'clients');
+            foreach ($members as $member) {
+                $relation->relate($member);
+            }
+        }
+    }
+
+    private function ensureTraveler(string $type, string $parentField, Entity $parent, Entity $contact, mixed $primaryId): void
+    {
+        $existing = $this->entityManager->getRDBRepository($type)
+            ->where([$parentField => $parent->getId(), 'contactId' => $contact->getId()])
+            ->findOne();
+        if ($existing) {
+            return;
+        }
+
+        $traveler = $this->entityManager->getNewEntity($type);
+        $traveler->set([
+            $parentField => $parent->getId(),
+            'contactId' => $contact->getId(),
+            'name' => (string) $contact->get('name'),
+            'travelerRole' => $contact->getId() === $primaryId ? 'Primary' : 'Traveler',
+        ]);
+        $this->entityManager->saveEntity($traveler);
+    }
+}
+`);
+
+moduleWrite('Classes/RecordHooks/Booking/SyncVendorClients.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+
+class SyncVendorClients implements SaveHook
+{
+    public function __construct(private EntityManager $entityManager)
+    {}
+
+    public function process(Entity $entity): void
+    {
+        $booking = $entity;
+        if ($entity->getEntityType() === 'EdtBookingTraveler') {
+            $booking = $entity->get('bookingId')
+                ? $this->entityManager->getEntityById('EdtBooking', (string) $entity->get('bookingId'))
+                : null;
+        }
+
+        if (!$booking) {
+            return;
+        }
+
+        if (!$booking->hasId() || !$booking->get('supplierId')) {
+            return;
+        }
+
+        $vendor = $this->entityManager->getEntityById('Account', (string) $booking->get('supplierId'));
+        if (!$vendor) {
+            return;
+        }
+
+        $clientIds = array_filter([$booking->get('primaryTravelerId')]);
+        if ($booking->get('householdId')) {
+            $members = $this->entityManager->getRDBRepository('Contact')
+                ->where(['householdId' => $booking->get('householdId')])
+                ->find();
+            foreach ($members as $member) {
+                $clientIds[] = $member->getId();
+            }
+        }
+
+        $travelers = $this->entityManager->getRDBRepository('EdtBookingTraveler')
+            ->where(['bookingId' => $booking->getId()])
+            ->find();
+        foreach ($travelers as $traveler) {
+            $clientIds[] = $traveler->get('contactId');
+        }
+
+        $relation = $this->entityManager->getRDBRepository('Account')->getRelation($vendor, 'edtClients');
+        foreach (array_unique(array_filter($clientIds)) as $clientId) {
+            $client = $this->entityManager->getEntityById('Contact', (string) $clientId);
+            if ($client) {
+                $relation->relate($client);
+                if ($client->get('travelerStatus') === 'Prospect') {
+                    $client->set('travelerStatus', 'Customer');
+                    $this->entityManager->saveEntity($client);
+                }
+            }
+        }
+    }
+}
+`);
+
+moduleWrite('Classes/RecordHooks/LoyaltyMembership/GenerateName.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\LoyaltyMembership;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+
+class GenerateName implements SaveHook
+{
+    public function __construct(private EntityManager $entityManager)
+    {}
+
+    public function process(Entity $entity): void
+    {
+        $client = $entity->get('contactId')
+            ? $this->entityManager->getEntityById('Contact', (string) $entity->get('contactId'))
+            : null;
+        $vendor = $entity->get('supplierId')
+            ? $this->entityManager->getEntityById('Account', (string) $entity->get('supplierId'))
+            : null;
+
+        $parts = array_filter([
+            $client?->get('name'),
+            $vendor?->get('name') ?: $entity->get('programName'),
+            $entity->get('membershipNumber'),
+        ]);
+        $entity->set('name', substr(implode(' - ', $parts) ?: 'Loyalty Membership', 0, 180));
+    }
+}
+`);
+
 const entities = {
   EdtHousehold: {
     label: 'Household', plural: 'Households',
     fields: {
       name: field('varchar', { required: true, maxLength: 150 }),
       externalId: externalIdField(50),
-      primaryTraveler: field('link'), sourceNameLabels: field('text'),
-      importReviewStatus: field('enum', { options: ['Ready','Needs Review','Do Not Import'], default: 'Ready' }),
+      primaryTraveler: field('link'), contacts: field('linkMultiple'),
       assignedUser: field('link'), teams: field('linkMultiple'), description: field('text')
     },
     links: {
@@ -629,7 +894,7 @@ const entities = {
       teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' }
     },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true } },
-    detail: [['name','externalId'],['primaryTraveler','importReviewStatus'],['sourceNameLabels','assignedUser'],['description','teams']],
+    detail: [['name','externalId'],['primaryTraveler',false],['contacts',false],['description','teams']],
     list: ['name','primaryTraveler','importReviewStatus','assignedUser'],
     filters: ['name','externalId','primaryTraveler','importReviewStatus','assignedUser','teams'],
     bottom: ['contacts','trips','bookings','quotes','segmentMemberships']
@@ -641,7 +906,7 @@ const entities = {
       household: field('link'), primaryTraveler: field('link'), travelStartDate: field('date'), travelEndDate: field('date', { after: 'travelStartDate', view: 'endless-dream-travel:views/fields/trip-end-date' }), mainBooking: field('link'),
       status: field('enum', { options: ['Proposed','Booked','In Travel','Completed','Canceled'], default: 'Proposed' }),
       componentCount: field('int', { default: 0, readOnly: true }), grossComponentValue: field('currency', { readOnly: true }), expectedCommissionTotal: field('currency', { readOnly: true }), receivedCommissionTotal: field('currency', { readOnly: true }), balanceDueTotal: field('currency', { readOnly: true }),
-      importReviewStatus: field('enum', { options: ['Proposed','Confirmed','Needs Review','Do Not Import'], default: 'Proposed' }), groupingNote: field('text'), assignedUser: field('link'), teams: field('linkMultiple'), description: field('text')
+      assignedUser: field('link'), teams: field('linkMultiple'), description: field('text')
     },
     links: {
       household: link('belongsTo', 'EdtHousehold', 'trips'), primaryTraveler: link('belongsTo', 'Contact', 'primaryTrips'), mainBooking: link('belongsTo', 'EdtBooking', 'mainForTrips'),
@@ -649,7 +914,7 @@ const entities = {
       quotes: link('hasMany', 'EdtQuote', 'convertedTrip'), assignedUser: link('belongsTo', 'User', 'edtTrips'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' }
     },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, travelDates: { columns: ['travelStartDate','travelEndDate'] } },
-    detail: [['name','externalId'],['household','primaryTraveler'],['travelStartDate','travelEndDate'],['status','mainBooking'],['grossComponentValue','balanceDueTotal'],['expectedCommissionTotal','receivedCommissionTotal'],['groupingNote','assignedUser'],['description','teams']],
+    detail: [['name','externalId'],['household','primaryTraveler'],['travelStartDate','travelEndDate'],['status','mainBooking'],['grossComponentValue','balanceDueTotal'],['expectedCommissionTotal','receivedCommissionTotal'],['description','teams']],
     list: ['name','household','travelStartDate','travelEndDate','status','grossComponentValue','expectedCommissionTotal'],
     filters: ['name','externalId','household','primaryTraveler','travelStartDate','travelEndDate','status','assignedUser','teams'],
     bottom: ['tripTravelers','bookings','quotes']
@@ -662,23 +927,23 @@ const entities = {
       componentType: field('enum', { options: ['Cruise','Resort / Hotel','Theme Park Tickets','Excursion / Tour','Transfer / Transportation','Travel Insurance','Air','Package','Other'] }),
       componentRole: field('enum', { options: ['Main Booking','Add-on','Standalone Add-on (Review)'], default: 'Main Booking' }), parentComponent: field('link'),
       financialTreatment: field('enum', { options: ['Separate Sale','Included in Parent Price','Non-Reportable','Review'], default: 'Separate Sale' }), includedInParentPrice: field('bool', { default: false }), reportableSale: field('bool', { default: true }),
-      travelDateRaw: field('varchar', { maxLength: 255 }), travelStartDate: field('date'), travelEndDate: field('date'), serviceStartDate: field('date'), serviceEndDate: field('date'), finalPaymentDueDate: field('date'), bookingYear: field('int', { disableFormatting: true }),
+      travelDateRaw: field('varchar', { maxLength: 255 }), travelStartDate: field('date'), travelEndDate: field('date'), serviceStartDate: field('date'), serviceEndDate: field('date'), finalPaymentDueDate: field('date'), bookingYear: field('int', { disableFormatting: true, view: 'endless-dream-travel:views/fields/booking-year' }),
       status: field('enum', { options: ['Quoted','Booked','Completed','Canceled','Removed from Live Source'], default: 'Booked' }), grossSale: field('currency'), amountPaidToSupplier: field('currency'), balanceDue: field('currency'), expectedCommission: field('currency'),
       commissionPaidFlag: field('bool', { default: false }), bonusAmount: field('currency'), bonusPaidFlag: field('bool', { default: false }), feesFlag: field('bool', { default: false }), thankYouSentFlag: field('bool', { default: false }),
-      cliaStateroomFlag: field('bool', { default: false }), cliaStateroomValue: field('varchar', { maxLength: 100 }), onBoardExcursion: field('varchar', { maxLength: 255 }), marketingCategory: field('enum', { options: ['Cruise','Disney','Universal','Resort','Tour / Excursion','Insurance','Transportation','Other'] }),
-      importReviewStatus: field('enum', { options: ['Ready','Needs Review','Do Not Import - Removed from Live Source'], default: 'Ready' }), tripAssignmentConfidence: field('enum', { options: ['Confirmed','High','Medium','Low','Needs Review'] }), tripAssignmentNote: field('text'), attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple')
+      cliaStateroomFlag: field('bool', { default: false }), cliaStateroomValue: field('varchar', { maxLength: 100 }), onBoardExcursion: field('varchar', { maxLength: 255 }),
+      attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple')
     },
     links: {
       trip: link('belongsTo', 'EdtTrip', 'bookings'), household: link('belongsTo', 'EdtHousehold', 'bookings'), primaryTraveler: link('belongsTo', 'Contact', 'primaryBookings'), supplier: link('belongsTo', 'Account', 'edtBookings'),
       parentComponent: link('belongsTo', 'EdtBooking', 'childComponents'), childComponents: link('hasMany', 'EdtBooking', 'parentComponent'), mainForTrips: link('hasMany', 'EdtTrip', 'mainBooking'),
-      bookingTravelers: link('hasMany', 'EdtBookingTraveler', 'booking', { audited: true }), commissions: link('hasMany', 'EdtCommission', 'booking', { audited: true }),
+      bookingTravelers: link('hasMany', 'EdtBookingTraveler', 'booking', { audited: true }), commissions: link('hasMany', 'EdtCommission', 'booking', { audited: true }), quotes: link('hasMany', 'EdtQuote', 'booking'),
       assignedUser: link('belongsTo', 'User', 'edtBookings'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' }
     },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, confirmationNumber: { columns: ['confirmationNumber'] }, travelDates: { columns: ['travelStartDate','travelEndDate'] } },
-    detail: [['name','externalId'],['trip','household'],['primaryTraveler','supplier'],['confirmationNumber','status'],['componentType','componentRole'],['parentComponent','financialTreatment'],['includedInParentPrice','reportableSale'],['travelStartDate','travelEndDate'],['serviceStartDate','serviceEndDate'],['finalPaymentDueDate','bookingYear'],['grossSale','amountPaidToSupplier'],['balanceDue','expectedCommission'],['commissionPaidFlag','bonusAmount'],['bonusPaidFlag','feesFlag'],['thankYouSentFlag','marketingCategory'],['importReviewStatus','tripAssignmentConfidence'],['tripAssignmentNote','assignedUser'],['attachments',false],['notes','teams']],
+    detail: [['name','externalId'],['trip','household'],['primaryTraveler','supplier'],['confirmationNumber','status'],['componentType','componentRole'],['parentComponent','financialTreatment'],['includedInParentPrice','reportableSale'],['travelStartDate','travelEndDate'],['serviceStartDate','serviceEndDate'],['finalPaymentDueDate','bookingYear'],['grossSale','amountPaidToSupplier'],['balanceDue','expectedCommission'],['commissionPaidFlag','bonusAmount'],['bonusPaidFlag','feesFlag'],['thankYouSentFlag',false],['attachments',false],['notes','teams']],
     list: ['name','trip','supplier','confirmationNumber','componentType','travelStartDate','status','grossSale','expectedCommission'],
-    filters: ['name','externalId','trip','household','primaryTraveler','supplier','confirmationNumber','componentType','componentRole','travelStartDate','travelEndDate','status','bookingYear','marketingCategory','importReviewStatus','assignedUser','teams'],
-    bottom: ['bookingTravelers','commissions','childComponents','mainForTrips']
+    filters: ['name','externalId','trip','household','primaryTraveler','supplier','confirmationNumber','componentType','componentRole','travelStartDate','travelEndDate','status','bookingYear','assignedUser','teams'],
+    bottom: ['bookingTravelers','commissions','quotes','childComponents','mainForTrips']
   },
   EdtTripTraveler: {
     label: 'Trip Traveler', plural: 'Trip Travelers',
@@ -703,17 +968,17 @@ const entities = {
   },
   EdtQuote: {
     label: 'Travel Quote', plural: 'Travel Quotes',
-    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(60), household: field('link'), primaryContact: field('link'), supplier: field('link'), convertedTrip: field('link'), stage: field('enum', { options: ['Draft','Sent','Accepted','Declined','Expired','Converted'], default: 'Draft' }), estimatedSale: field('currency'), validUntil: field('date'), travelStartDate: field('date'), travelEndDate: field('date'), destination: field('varchar', { maxLength: 255 }), attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
-    links: { household: link('belongsTo', 'EdtHousehold', 'quotes'), primaryContact: link('belongsTo', 'Contact', 'primaryQuotes'), supplier: link('belongsTo', 'Account', 'edtQuotes'), convertedTrip: link('belongsTo', 'EdtTrip', 'quotes'), assignedUser: link('belongsTo', 'User', 'edtQuotes'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
+    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(60), household: field('link'), primaryContact: field('link'), clients: field('linkMultiple'), supplier: field('link'), convertedTrip: field('link'), booking: field('link'), stage: field('enum', { options: ['Draft','Sent','Accepted','Declined','Expired','Converted'], default: 'Draft' }), estimatedSale: field('currency'), validUntil: field('date'), travelStartDate: field('date'), travelEndDate: field('date'), destination: field('varchar', { maxLength: 255 }), attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
+    links: { household: link('belongsTo', 'EdtHousehold', 'quotes'), primaryContact: link('belongsTo', 'Contact', 'primaryQuotes'), clients: { type: 'hasMany', entity: 'Contact', relationName: 'edtQuoteContact', foreign: 'edtQuotes' }, supplier: link('belongsTo', 'Account', 'edtQuotes'), convertedTrip: link('belongsTo', 'EdtTrip', 'quotes'), booking: link('belongsTo', 'EdtBooking', 'quotes'), assignedUser: link('belongsTo', 'User', 'edtQuotes'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true } },
-    detail: [['name','externalId'],['household','primaryContact'],['supplier','stage'],['estimatedSale','validUntil'],['travelStartDate','travelEndDate'],['destination','convertedTrip'],['attachments',false],['notes','assignedUser'],['teams',false]], list: ['name','household','primaryContact','supplier','stage','estimatedSale','validUntil'], filters: ['name','externalId','household','primaryContact','supplier','stage','validUntil','travelStartDate','travelEndDate','assignedUser','teams'], bottom: []
+    detail: [['name','externalId'],['household','primaryContact'],['clients',false],['supplier','stage'],['convertedTrip','booking'],['estimatedSale','validUntil'],['travelStartDate','travelEndDate'],['destination',false],['attachments',false],['notes','assignedUser'],['teams',false]], list: ['name','household','primaryContact','supplier','stage','estimatedSale','validUntil'], filters: ['name','externalId','household','primaryContact','clients','supplier','convertedTrip','booking','stage','validUntil','travelStartDate','travelEndDate','assignedUser','teams'], bottom: []
   },
   EdtLoyaltyMembership: {
     label: 'Loyalty Membership', plural: 'Loyalty Memberships',
-    fields: { name: field('varchar', { required: true, maxLength: 180 }), externalId: externalIdField(60), contact: field('link', { required: true }), supplier: field('link'), programName: field('varchar', { required: true, maxLength: 150 }), membershipNumber: field('varchar', { maxLength: 150, isPersonalData: true }), tier: field('varchar', { maxLength: 100 }), status: field('enum', { options: ['Active','Inactive','Unknown'], default: 'Active' }), verifiedDate: field('date'), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
+    fields: { name: field('varchar', { maxLength: 180, readOnly: true }), externalId: externalIdField(60), contact: field('link', { required: true }), supplier: field('link'), programName: field('varchar', { required: true, maxLength: 150 }), membershipNumber: field('varchar', { maxLength: 150, isPersonalData: true }), tier: field('varchar', { maxLength: 100 }), status: field('enum', { options: ['Active','Inactive','Unknown'], default: 'Active' }), verifiedDate: field('date'), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple') },
     links: { contact: link('belongsTo', 'Contact', 'edtLoyaltyMemberships'), supplier: link('belongsTo', 'Account', 'edtLoyaltyMemberships'), assignedUser: link('belongsTo', 'User', 'edtLoyaltyMemberships'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' } },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, contactProgram: { columns: ['contactId','programName'] } },
-    detail: [['name','externalId'],['contact','supplier'],['programName','membershipNumber'],['tier','status'],['verifiedDate','assignedUser'],['notes','teams']], list: ['name','contact','supplier','programName','tier','status','verifiedDate'], filters: ['contact','supplier','programName','tier','status','verifiedDate','assignedUser','teams'], bottom: []
+    detail: [['externalId',false],['contact','supplier'],['programName','membershipNumber'],['tier','status'],['verifiedDate','assignedUser'],['notes','teams']], list: ['contact','supplier','programName','tier','status','verifiedDate'], filters: ['contact','supplier','programName','tier','status','verifiedDate','assignedUser','teams'], bottom: []
   },
   EdtSegmentMembership: {
     label: 'Segment Membership', plural: 'Segment Memberships',
@@ -734,13 +999,14 @@ const standardFields = {
     },
     links: {
       household: link('belongsTo', 'EdtHousehold', 'contacts'), primaryHouseholds: link('hasMany', 'EdtHousehold', 'primaryTraveler'), primaryTrips: link('hasMany', 'EdtTrip', 'primaryTraveler'), primaryBookings: link('hasMany', 'EdtBooking', 'primaryTraveler'), primaryQuotes: link('hasMany', 'EdtQuote', 'primaryContact'),
-      edtTripTravelers: link('hasMany', 'EdtTripTraveler', 'contact'), edtBookingTravelers: link('hasMany', 'EdtBookingTraveler', 'contact'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'contact'), edtSegmentMemberships: link('hasMany', 'EdtSegmentMembership', 'contact')
+      edtTripTravelers: link('hasMany', 'EdtTripTraveler', 'contact'), edtBookingTravelers: link('hasMany', 'EdtBookingTraveler', 'contact'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'contact'), edtSegmentMemberships: link('hasMany', 'EdtSegmentMembership', 'contact'),
+      edtQuotes: { type: 'hasMany', entity: 'EdtQuote', relationName: 'edtQuoteContact', foreign: 'clients' }, edtVendors: { type: 'hasMany', entity: 'Account', relationName: 'edtVendorClient', foreign: 'edtClients' }
     },
     indexes: { edtExternalIdUnique: { columns: ['edtExternalId'], unique: true } }
   },
   Account: {
-    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true, relateOnImport: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }) },
-    links: { edtBookings: link('hasMany', 'EdtBooking', 'supplier'), edtCommissions: link('hasMany', 'EdtCommission', 'supplier'), edtQuotes: link('hasMany', 'EdtQuote', 'supplier'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'supplier') },
+    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true, relateOnImport: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }), edtMarketingCategory: field('enum', { options: ['Cruise','Disney','Universal','Resort','Tour / Excursion','Insurance','Transportation','Air','Other'] }), edtClients: field('linkMultiple') },
+    links: { edtBookings: link('hasMany', 'EdtBooking', 'supplier'), edtCommissions: link('hasMany', 'EdtCommission', 'supplier'), edtQuotes: link('hasMany', 'EdtQuote', 'supplier'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'supplier'), edtClients: { type: 'hasMany', entity: 'Contact', relationName: 'edtVendorClient', foreign: 'edtVendors' } },
     indexes: { edtVendorExternalIdUnique: { columns: ['edtVendorExternalId'], unique: true } }
   },
   User: { fields: {}, links: { edtHouseholds: link('hasMany','EdtHousehold','assignedUser'), edtTrips: link('hasMany','EdtTrip','assignedUser'), edtBookings: link('hasMany','EdtBooking','assignedUser'), edtCommissions: link('hasMany','EdtCommission','assignedUser'), edtQuotes: link('hasMany','EdtQuote','assignedUser'), edtLoyaltyMemberships: link('hasMany','EdtLoyaltyMembership','assignedUser') } }
@@ -846,17 +1112,41 @@ write('files/custom/Espo/Custom/Resources/layouts/Contact/defaultSidePanel.json'
 write('files/custom/Espo/Custom/Resources/layouts/Contact/list.json', contactListLayout);
 write('files/custom/Espo/Custom/Resources/layouts/Contact/listSmall.json', contactListLayout.slice(0, 4));
 write('files/custom/Espo/Custom/Resources/layouts/Account/defaultSidePanel.json', []);
+const vendorDetailLayout = [{
+  label: 'Details',
+  rows: [
+    [{ name: 'name', fullWidth: true }, false],
+    [{ name: 'edtVendorExternalId' }, { name: 'edtVendorStatus' }],
+    [{ name: 'edtVendorType' }, { name: 'edtSupplierCode' }],
+    [{ name: 'edtMarketingCategory' }, { name: 'edtVendor' }],
+    [{ name: 'website' }, { name: 'phoneNumber' }],
+    [{ name: 'description', fullWidth: true }, false]
+  ]
+}];
+const vendorBottomLayout = ['edtClients', 'edtBookings', 'edtQuotes', 'edtLoyaltyMemberships', 'edtCommissions']
+  .map(name => ({ name }));
+moduleWrite('Resources/layouts/Account/detail.json', vendorDetailLayout);
+moduleWrite('Resources/layouts/Account/detailSmall.json', vendorDetailLayout);
+moduleWrite('Resources/layouts/Account/bottomPanelsDetail.json', vendorBottomLayout);
+write('files/custom/Espo/Custom/Resources/layouts/Account/detail.json', vendorDetailLayout);
+write('files/custom/Espo/Custom/Resources/layouts/Account/detailSmall.json', vendorDetailLayout);
+write('files/custom/Espo/Custom/Resources/layouts/Account/bottomPanelsDetail.json', vendorBottomLayout);
 moduleWrite('Resources/metadata/recordDefs/Contact.json', {
   beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress'],
   beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress'],
   afterCreateHookClassNameList: ['Espo\\Modules\\Crm\\Classes\\RecordHooks\\Contact\\AfterCreate', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\AfterCreateHousehold']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtBooking.json', {
-  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
-  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
-  afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
-  afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
+  afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
   afterDeleteHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals']
+});
+moduleWrite('Resources/metadata/recordDefs/EdtBookingTraveler.json', {
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId'],
+  afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients'],
+  afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtCommission.json', {
   beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Commission\\GenerateCommissionName', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier'],
@@ -866,12 +1156,20 @@ moduleWrite('Resources/metadata/recordDefs/EdtCommission.json', {
   afterDeleteHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtTrip.json', {
-  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
-  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges']
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers'],
+  afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtQuote.json', {
-  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
-  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges']
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers'],
+  afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers']
+});
+moduleWrite('Resources/metadata/recordDefs/EdtLoyaltyMembership.json', {
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\LoyaltyMembership\\GenerateName'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\LoyaltyMembership\\GenerateName']
 });
 
 moduleWrite('Resources/metadata/app/client.json', {
@@ -937,14 +1235,21 @@ moduleWrite('Resources/i18n/en_US/Global.json', global);
 
 for (const [name, def] of Object.entries(entities)) {
   const fields = {}, links = {}, options = {};
-  for (const [k, v] of Object.entries(def.fields)) { fields[k] = k === 'externalId' ? `${def.label} External ID` : pretty(k); if (v.options) options[k] = Object.fromEntries(v.options.map(x => [x,x])); }
+  for (const [k, v] of Object.entries(def.fields)) { fields[k] = k === 'externalId' ? `${def.label} External ID` : pretty(k); fields[k] = fields[k].replaceAll('Supplier', 'Vendor'); if (v.options) options[k] = Object.fromEntries(v.options.map(x => [x,x])); }
   if (name === 'EdtTrip') fields.grossComponentValue = 'Gross Trip Cost';
   for (const k of Object.keys(def.links)) links[k] = pretty(k);
   if ('contact' in fields) fields.contact = 'Client';
   if ('primaryContact' in fields) fields.primaryContact = 'Primary Client';
+  if ('contacts' in fields) fields.contacts = 'Clients';
+  if ('clients' in fields) fields.clients = 'Clients';
+  if ('supplier' in fields) fields.supplier = 'Vendor';
+  if ('convertedTrip' in fields) fields.convertedTrip = 'Trip';
   if ('contact' in links) links.contact = 'Client';
   if ('contacts' in links) links.contacts = 'Clients';
   if ('primaryContact' in links) links.primaryContact = 'Primary Client';
+  if ('clients' in links) links.clients = 'Clients';
+  if ('supplier' in links) links.supplier = 'Vendor';
+  if ('convertedTrip' in links) links.convertedTrip = 'Trip';
   moduleWrite(`Resources/i18n/en_US/${name}.json`, { labels: { [`Create ${name}`]: `Create ${def.label}` }, fields, links, options });
 }
 
@@ -953,8 +1258,8 @@ const contactI18nPath = path.join(moduleRoot, 'Resources/i18n/en_US/Contact.json
 const contactI18n = JSON.parse(fs.readFileSync(contactI18nPath, 'utf8'));
 contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
-moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Supplier Code', edtVendorStatus:'Vendor Status' }, links: { contacts:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' } });
+moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.28\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.28 adds the Endless Dream ship browser-tab icon while preserving the existing data model and workflows.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.32\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.32 adds automatic nested-record context, household travelers, vendor-client history, Vendor marketing categories and consistent Vendor terminology. Loyalty Membership names are generated automatically.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

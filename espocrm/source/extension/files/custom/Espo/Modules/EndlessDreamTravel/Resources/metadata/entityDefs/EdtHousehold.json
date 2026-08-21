@@ -15,17 +15,8 @@
     "primaryTraveler": {
       "type": "link"
     },
-    "sourceNameLabels": {
-      "type": "text"
-    },
-    "importReviewStatus": {
-      "type": "enum",
-      "options": [
-        "Ready",
-        "Needs Review",
-        "Do Not Import"
-      ],
-      "default": "Ready"
+    "contacts": {
+      "type": "linkMultiple"
     },
     "assignedUser": {
       "type": "link"

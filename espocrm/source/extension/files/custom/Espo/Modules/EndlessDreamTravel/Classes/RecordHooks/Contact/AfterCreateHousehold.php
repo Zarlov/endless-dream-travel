@@ -22,7 +22,6 @@ class AfterCreateHousehold implements SaveHook
             'name' => ($baseName ?: 'New Traveler') . ' Household',
             'externalId' => 'HH-' . strtoupper(bin2hex(random_bytes(5))),
             'primaryTravelerId' => $entity->getId(),
-            'importReviewStatus' => 'Ready',
             'assignedUserId' => $entity->get('assignedUserId'),
         ]);
         $this->entityManager->saveEntity($household);

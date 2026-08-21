@@ -94,7 +94,8 @@
     },
     "bookingYear": {
       "type": "int",
-      "disableFormatting": true
+      "disableFormatting": true,
+      "view": "endless-dream-travel:views/fields/booking-year"
     },
     "status": {
       "type": "enum",
@@ -149,41 +150,6 @@
     "onBoardExcursion": {
       "type": "varchar",
       "maxLength": 255
-    },
-    "marketingCategory": {
-      "type": "enum",
-      "options": [
-        "Cruise",
-        "Disney",
-        "Universal",
-        "Resort",
-        "Tour / Excursion",
-        "Insurance",
-        "Transportation",
-        "Other"
-      ]
-    },
-    "importReviewStatus": {
-      "type": "enum",
-      "options": [
-        "Ready",
-        "Needs Review",
-        "Do Not Import - Removed from Live Source"
-      ],
-      "default": "Ready"
-    },
-    "tripAssignmentConfidence": {
-      "type": "enum",
-      "options": [
-        "Confirmed",
-        "High",
-        "Medium",
-        "Low",
-        "Needs Review"
-      ]
-    },
-    "tripAssignmentNote": {
-      "type": "text"
     },
     "attachments": {
       "type": "attachmentMultiple",
@@ -268,6 +234,11 @@
       "entity": "EdtCommission",
       "foreign": "booking",
       "audited": true
+    },
+    "quotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "foreign": "booking"
     },
     "assignedUser": {
       "type": "belongsTo",

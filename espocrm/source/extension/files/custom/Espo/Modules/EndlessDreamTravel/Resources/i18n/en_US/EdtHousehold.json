@@ -6,8 +6,7 @@
     "name": "Name",
     "externalId": "Household External ID",
     "primaryTraveler": "Primary Traveler",
-    "sourceNameLabels": "Source Name Labels",
-    "importReviewStatus": "Import Review Status",
+    "contacts": "Clients",
     "assignedUser": "Assigned User",
     "teams": "Teams",
     "description": "Description"
@@ -22,11 +21,5 @@
     "assignedUser": "Assigned User",
     "teams": "Teams"
   },
-  "options": {
-    "importReviewStatus": {
-      "Ready": "Ready",
-      "Needs Review": "Needs Review",
-      "Do Not Import": "Do Not Import"
-    }
-  }
+  "options": {}
 }

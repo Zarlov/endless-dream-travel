@@ -41,7 +41,7 @@ for (const [entity, def] of Object.entries(defs)) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
-if (manifest.version !== '1.0.28') errors.push('Unexpected manifest version');
+if (manifest.version !== '1.0.32') errors.push('Unexpected manifest version');
 if (!manifest.acceptableVersions?.some(x => x.includes('10.0.0'))) errors.push('EspoCRM 10 compatibility missing');
 for (const favicon of ['favicon.ico', 'favicon-196.png', 'favicon.svg']) {
   const customFaviconPath = path.join(root, 'files/client/custom/modules/endless-dream-travel/img', favicon);

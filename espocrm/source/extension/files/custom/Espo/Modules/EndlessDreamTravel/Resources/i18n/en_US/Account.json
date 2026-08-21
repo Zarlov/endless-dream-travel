@@ -3,14 +3,30 @@
     "edtVendorExternalId": "Vendor External ID",
     "edtVendor": "Is Travel Vendor",
     "edtVendorType": "Vendor Type",
-    "edtSupplierCode": "Supplier Code",
-    "edtVendorStatus": "Vendor Status"
+    "edtSupplierCode": "Vendor Code",
+    "edtVendorStatus": "Vendor Status",
+    "edtMarketingCategory": "Marketing Category",
+    "edtClients": "Clients"
   },
   "links": {
-    "contacts": "Clients",
+    "contacts": "Vendor Contacts",
+    "edtClients": "Clients",
     "edtBookings": "Bookings",
     "edtCommissions": "Commissions",
     "edtQuotes": "Travel Quotes",
     "edtLoyaltyMemberships": "Loyalty Memberships"
+  },
+  "options": {
+    "edtMarketingCategory": {
+      "Cruise": "Cruise",
+      "Disney": "Disney",
+      "Universal": "Universal",
+      "Resort": "Resort",
+      "Tour / Excursion": "Tour / Excursion",
+      "Insurance": "Insurance",
+      "Transportation": "Transportation",
+      "Air": "Air",
+      "Other": "Other"
+    }
   }
 }

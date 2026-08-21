@@ -16,8 +16,6 @@
     "expectedCommissionTotal": "Expected Commission Total",
     "receivedCommissionTotal": "Received Commission Total",
     "balanceDueTotal": "Balance Due Total",
-    "importReviewStatus": "Import Review Status",
-    "groupingNote": "Grouping Note",
     "assignedUser": "Assigned User",
     "teams": "Teams",
     "description": "Description"
@@ -39,12 +37,6 @@
       "In Travel": "In Travel",
       "Completed": "Completed",
       "Canceled": "Canceled"
-    },
-    "importReviewStatus": {
-      "Proposed": "Proposed",
-      "Confirmed": "Confirmed",
-      "Needs Review": "Needs Review",
-      "Do Not Import": "Do Not Import"
     }
   }
 }

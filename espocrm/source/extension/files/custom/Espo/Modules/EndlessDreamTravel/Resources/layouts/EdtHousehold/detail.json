@@ -17,6 +17,12 @@
       ],
       [
         {
+          "name": "contacts"
+        },
+        false
+      ],
+      [
+        {
           "name": "description"
         },
         false

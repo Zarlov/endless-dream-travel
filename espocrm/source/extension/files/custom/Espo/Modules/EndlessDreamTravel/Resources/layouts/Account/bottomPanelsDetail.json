@@ -1,0 +1,17 @@
+[
+  {
+    "name": "edtClients"
+  },
+  {
+    "name": "edtBookings"
+  },
+  {
+    "name": "edtQuotes"
+  },
+  {
+    "name": "edtLoyaltyMemberships"
+  },
+  {
+    "name": "edtCommissions"
+  }
+]

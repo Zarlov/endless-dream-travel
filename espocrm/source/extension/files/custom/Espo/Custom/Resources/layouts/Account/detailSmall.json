@@ -1,0 +1,53 @@
+[
+  {
+    "label": "Details",
+    "rows": [
+      [
+        {
+          "name": "name",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
+          "name": "edtVendorExternalId"
+        },
+        {
+          "name": "edtVendorStatus"
+        }
+      ],
+      [
+        {
+          "name": "edtVendorType"
+        },
+        {
+          "name": "edtSupplierCode"
+        }
+      ],
+      [
+        {
+          "name": "edtMarketingCategory"
+        },
+        {
+          "name": "edtVendor"
+        }
+      ],
+      [
+        {
+          "name": "website"
+        },
+        {
+          "name": "phoneNumber"
+        }
+      ],
+      [
+        {
+          "name": "description",
+          "fullWidth": true
+        },
+        false
+      ]
+    ]
+  }
+]

@@ -61,19 +61,6 @@
       "type": "currency",
       "readOnly": true
     },
-    "importReviewStatus": {
-      "type": "enum",
-      "options": [
-        "Proposed",
-        "Confirmed",
-        "Needs Review",
-        "Do Not Import"
-      ],
-      "default": "Proposed"
-    },
-    "groupingNote": {
-      "type": "text"
-    },
     "assignedUser": {
       "type": "link"
     },

@@ -18,10 +18,16 @@
     "primaryContact": {
       "type": "link"
     },
+    "clients": {
+      "type": "linkMultiple"
+    },
     "supplier": {
       "type": "link"
     },
     "convertedTrip": {
+      "type": "link"
+    },
+    "booking": {
       "type": "link"
     },
     "stage": {
@@ -99,6 +105,12 @@
       "entity": "Contact",
       "foreign": "primaryQuotes"
     },
+    "clients": {
+      "type": "hasMany",
+      "entity": "Contact",
+      "relationName": "edtQuoteContact",
+      "foreign": "edtQuotes"
+    },
     "supplier": {
       "type": "belongsTo",
       "entity": "Account",
@@ -107,6 +119,11 @@
     "convertedTrip": {
       "type": "belongsTo",
       "entity": "EdtTrip",
+      "foreign": "quotes"
+    },
+    "booking": {
+      "type": "belongsTo",
+      "entity": "EdtBooking",
       "foreign": "quotes"
     },
     "assignedUser": {

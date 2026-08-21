@@ -6,7 +6,7 @@
     "name": "Name",
     "externalId": "Commission External ID",
     "booking": "Booking",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "type": "Type",
     "expectedAmount": "Expected Amount",
     "receivedAmount": "Received Amount",
@@ -19,7 +19,7 @@
   },
   "links": {
     "booking": "Booking",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "assignedUser": "Assigned User",
     "teams": "Teams"
   },

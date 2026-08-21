@@ -117,22 +117,6 @@
         {
           "name": "thankYouSentFlag"
         },
-        {
-          "name": "marketingCategory"
-        }
-      ],
-      [
-        {
-          "name": "importReviewStatus"
-        },
-        {
-          "name": "tripAssignmentConfidence"
-        }
-      ],
-      [
-        {
-          "name": "tripAssignmentNote"
-        },
         false
       ],
       [

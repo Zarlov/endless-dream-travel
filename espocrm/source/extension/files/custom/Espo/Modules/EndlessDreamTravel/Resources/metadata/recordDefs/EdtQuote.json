@@ -1,9 +1,17 @@
 {
   "beforeCreateHookClassNameList": [
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext",
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
   ],
   "beforeUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext",
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
+  ],
+  "afterCreateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers"
+  ],
+  "afterUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers"
   ]
 }

@@ -35,6 +35,23 @@
         "Inactive"
       ],
       "default": "Active"
+    },
+    "edtMarketingCategory": {
+      "type": "enum",
+      "options": [
+        "Cruise",
+        "Disney",
+        "Universal",
+        "Resort",
+        "Tour / Excursion",
+        "Insurance",
+        "Transportation",
+        "Air",
+        "Other"
+      ]
+    },
+    "edtClients": {
+      "type": "linkMultiple"
     }
   },
   "links": {
@@ -57,6 +74,12 @@
       "type": "hasMany",
       "entity": "EdtLoyaltyMembership",
       "foreign": "supplier"
+    },
+    "edtClients": {
+      "type": "hasMany",
+      "entity": "Contact",
+      "relationName": "edtVendorClient",
+      "foreign": "edtVendors"
     }
   },
   "indexes": {

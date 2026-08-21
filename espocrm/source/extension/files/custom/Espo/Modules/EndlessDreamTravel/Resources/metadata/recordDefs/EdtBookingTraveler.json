@@ -1,5 +1,11 @@
 {
   "beforeCreateHookClassNameList": [
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId"
+  ],
+  "afterCreateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients"
+  ],
+  "afterUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients"
   ]
 }

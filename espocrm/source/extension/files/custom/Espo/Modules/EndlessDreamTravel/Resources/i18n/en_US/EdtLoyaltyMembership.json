@@ -6,7 +6,7 @@
     "name": "Name",
     "externalId": "Loyalty Membership External ID",
     "contact": "Client",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "programName": "Program Name",
     "membershipNumber": "Membership Number",
     "tier": "Tier",
@@ -18,7 +18,7 @@
   },
   "links": {
     "contact": "Client",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "assignedUser": "Assigned User",
     "teams": "Teams"
   },

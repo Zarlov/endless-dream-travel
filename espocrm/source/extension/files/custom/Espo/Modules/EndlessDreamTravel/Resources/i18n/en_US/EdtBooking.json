@@ -8,7 +8,7 @@
     "trip": "Trip",
     "household": "Household",
     "primaryTraveler": "Primary Traveler",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "confirmationNumber": "Confirmation Number",
     "componentType": "Component Type",
     "componentRole": "Component Role",
@@ -25,7 +25,7 @@
     "bookingYear": "Booking Year",
     "status": "Status",
     "grossSale": "Gross Sale",
-    "amountPaidToSupplier": "Amount Paid To Supplier",
+    "amountPaidToSupplier": "Amount Paid To Vendor",
     "balanceDue": "Balance Due",
     "expectedCommission": "Expected Commission",
     "commissionPaidFlag": "Commission Paid Flag",
@@ -36,10 +36,6 @@
     "cliaStateroomFlag": "Clia Stateroom Flag",
     "cliaStateroomValue": "Clia Stateroom Value",
     "onBoardExcursion": "On Board Excursion",
-    "marketingCategory": "Marketing Category",
-    "importReviewStatus": "Import Review Status",
-    "tripAssignmentConfidence": "Trip Assignment Confidence",
-    "tripAssignmentNote": "Trip Assignment Note",
     "attachments": "Attachments",
     "notes": "Notes",
     "assignedUser": "Assigned User",
@@ -49,12 +45,13 @@
     "trip": "Trip",
     "household": "Household",
     "primaryTraveler": "Primary Traveler",
-    "supplier": "Supplier",
+    "supplier": "Vendor",
     "parentComponent": "Parent Component",
     "childComponents": "Child Components",
     "mainForTrips": "Main For Trips",
     "bookingTravelers": "Booking Travelers",
     "commissions": "Commissions",
+    "quotes": "Quotes",
     "assignedUser": "Assigned User",
     "teams": "Teams"
   },
@@ -87,28 +84,6 @@
       "Completed": "Completed",
       "Canceled": "Canceled",
       "Removed from Live Source": "Removed from Live Source"
-    },
-    "marketingCategory": {
-      "Cruise": "Cruise",
-      "Disney": "Disney",
-      "Universal": "Universal",
-      "Resort": "Resort",
-      "Tour / Excursion": "Tour / Excursion",
-      "Insurance": "Insurance",
-      "Transportation": "Transportation",
-      "Other": "Other"
-    },
-    "importReviewStatus": {
-      "Ready": "Ready",
-      "Needs Review": "Needs Review",
-      "Do Not Import - Removed from Live Source": "Do Not Import - Removed from Live Source"
-    },
-    "tripAssignmentConfidence": {
-      "Confirmed": "Confirmed",
-      "High": "High",
-      "Medium": "Medium",
-      "Low": "Low",
-      "Needs Review": "Needs Review"
     }
   }
 }

@@ -1,10 +1,7 @@
 [
   {
-    "name": "name",
+    "name": "contact",
     "link": true
-  },
-  {
-    "name": "contact"
   },
   {
     "name": "supplier"
@@ -14,5 +11,8 @@
   },
   {
     "name": "tier"
+  },
+  {
+    "name": "status"
   }
 ]

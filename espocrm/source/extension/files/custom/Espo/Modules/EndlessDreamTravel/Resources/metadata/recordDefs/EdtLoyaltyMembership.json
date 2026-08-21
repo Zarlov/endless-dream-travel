@@ -1,5 +1,9 @@
 {
   "beforeCreateHookClassNameList": [
-    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId"
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\LoyaltyMembership\\GenerateName"
+  ],
+  "beforeUpdateHookClassNameList": [
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\LoyaltyMembership\\GenerateName"
   ]
 }

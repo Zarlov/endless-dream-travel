@@ -51,12 +51,6 @@
       ],
       [
         {
-          "name": "groupingNote"
-        },
-        false
-      ],
-      [
-        {
           "name": "description"
         },
         false

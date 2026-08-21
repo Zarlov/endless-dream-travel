@@ -3,11 +3,9 @@
     "rows": [
       [
         {
-          "name": "name"
-        },
-        {
           "name": "externalId"
-        }
+        },
+        false
       ],
       [
         {

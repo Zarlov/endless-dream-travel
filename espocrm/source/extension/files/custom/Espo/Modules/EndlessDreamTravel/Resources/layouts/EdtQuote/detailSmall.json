@@ -19,10 +19,24 @@
       ],
       [
         {
+          "name": "clients"
+        },
+        false
+      ],
+      [
+        {
           "name": "supplier"
         },
         {
           "name": "stage"
+        }
+      ],
+      [
+        {
+          "name": "convertedTrip"
+        },
+        {
+          "name": "booking"
         }
       ],
       [
@@ -45,9 +59,7 @@
         {
           "name": "destination"
         },
-        {
-          "name": "convertedTrip"
-        }
+        false
       ],
       [
         {

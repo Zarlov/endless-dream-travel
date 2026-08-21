@@ -155,6 +155,18 @@
       "type": "hasMany",
       "entity": "EdtSegmentMembership",
       "foreign": "contact"
+    },
+    "edtQuotes": {
+      "type": "hasMany",
+      "entity": "EdtQuote",
+      "relationName": "edtQuoteContact",
+      "foreign": "clients"
+    },
+    "edtVendors": {
+      "type": "hasMany",
+      "entity": "Account",
+      "relationName": "edtVendorClient",
+      "foreign": "edtClients"
     }
   },
   "indexes": {

@@ -11,7 +11,5 @@
   "travelStartDate",
   "travelEndDate",
   "status",
-  "bookingYear",
-  "marketingCategory",
-  "importReviewStatus"
+  "bookingYear"
 ]

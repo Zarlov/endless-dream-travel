@@ -1,6 +1,6 @@
 {
   "name": "Endless Dream Travel Data Model",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "acceptableVersions": [
     ">=10.0.0 <11.0.0"
   ],
@@ -9,5 +9,5 @@
   ],
   "releaseDate": "2026-08-21",
   "author": "Endless Dream Travel",
-  "description": "Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.32 adds automatic nested-record context, household travelers, vendor-client history and consistent Vendor terminology."
+  "description": "Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.33 removes the obsolete Trip Traveler manual-review field."
 }

@@ -8,8 +8,7 @@
     "trip": "Trip",
     "contact": "Client",
     "travelerRole": "Traveler Role",
-    "source": "Source",
-    "manualReviewRequired": "Manual Review Required"
+    "source": "Source"
   },
   "links": {
     "trip": "Trip",

@@ -1,9 +1,9 @@
-Endless Dream Travel Data Model 1.0.32
+Endless Dream Travel Data Model 1.0.33
 
 Target: EspoCRM 10.x
 
 Creates nine travel entities and extends Contact and Account. No client data is included.
-Version 1.0.32 adds automatic nested-record context, household travelers, vendor-client history, Vendor marketing categories and consistent Vendor terminology. Loyalty Membership names are generated automatically.
+Version 1.0.33 removes the obsolete Trip Traveler manual-review field while preserving the automatic relationship workflows from 1.0.32.
 Install from Administration > Extensions, then confirm the automatic rebuild completed.
 Review roles before importing data.
 

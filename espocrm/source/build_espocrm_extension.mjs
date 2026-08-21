@@ -23,12 +23,12 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.32',
+  version: '1.0.33',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
   releaseDate: '2026-08-21',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.32 adds automatic nested-record context, household travelers, vendor-client history and consistent Vendor terminology.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.33 removes the obsolete Trip Traveler manual-review field.'
 });
 
 const auditFields = {
@@ -947,10 +947,10 @@ const entities = {
   },
   EdtTripTraveler: {
     label: 'Trip Traveler', plural: 'Trip Travelers',
-    fields: { name: field('varchar', { maxLength: 180 }), externalId: externalIdField(60), trip: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), source: field('varchar', { maxLength: 255 }), manualReviewRequired: field('bool', { default: false }) },
+    fields: { name: field('varchar', { maxLength: 180 }), externalId: externalIdField(60), trip: field('link', { required: true }), contact: field('link', { required: true }), travelerRole: field('enum', { options: ['Primary','Traveler','Guest','Group Lead'], default: 'Traveler' }), source: field('varchar', { maxLength: 255 }) },
     links: { trip: link('belongsTo', 'EdtTrip', 'tripTravelers'), contact: link('belongsTo', 'Contact', 'edtTripTravelers') },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, tripContactUnique: { columns: ['tripId','contactId'], unique: true } },
-    detail: [['trip','contact'],['travelerRole','manualReviewRequired'],['externalId','source']], list: ['trip','contact','travelerRole','manualReviewRequired'], filters: ['trip','contact','travelerRole','manualReviewRequired'], bottom: []
+    detail: [['trip','contact'],['travelerRole',false],['externalId','source']], list: ['trip','contact','travelerRole'], filters: ['trip','contact','travelerRole'], bottom: []
   },
   EdtBookingTraveler: {
     label: 'Booking Traveler', plural: 'Booking Travelers',
@@ -1260,6 +1260,6 @@ contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
 moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.32\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.32 adds automatic nested-record context, household travelers, vendor-client history, Vendor marketing categories and consistent Vendor terminology. Loyalty Membership names are generated automatically.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.33\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.33 removes the obsolete Trip Traveler manual-review field while preserving the automatic relationship workflows from 1.0.32.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

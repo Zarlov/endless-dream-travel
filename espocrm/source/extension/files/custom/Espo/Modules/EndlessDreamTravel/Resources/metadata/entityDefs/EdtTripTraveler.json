@@ -33,10 +33,6 @@
       "type": "varchar",
       "maxLength": 255
     },
-    "manualReviewRequired": {
-      "type": "bool",
-      "default": false
-    },
     "createdAt": {
       "type": "datetime",
       "readOnly": true,

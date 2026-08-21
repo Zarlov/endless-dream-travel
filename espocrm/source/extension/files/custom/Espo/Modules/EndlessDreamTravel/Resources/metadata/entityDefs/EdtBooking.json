@@ -120,6 +120,71 @@
     "expectedCommission": {
       "type": "currency"
     },
+    "paymentReminderEnabled": {
+      "type": "bool",
+      "default": true
+    },
+    "clientRemindersEnabled": {
+      "type": "bool",
+      "default": false
+    },
+    "reminderDays": {
+      "type": "multiEnum",
+      "options": [
+        "30",
+        "14",
+        "7",
+        "3",
+        "1"
+      ],
+      "default": [
+        "30",
+        "14",
+        "7",
+        "3",
+        "1"
+      ]
+    },
+    "paymentReminderRecipient": {
+      "type": "link"
+    },
+    "clientReminderRecipients": {
+      "type": "linkMultiple"
+    },
+    "paymentReminderStatus": {
+      "type": "enum",
+      "options": [
+        "Active",
+        "Paused",
+        "Completed"
+      ],
+      "default": "Active"
+    },
+    "finalPaymentReceived": {
+      "type": "bool",
+      "default": false,
+      "readOnly": true
+    },
+    "lastReminderDate": {
+      "type": "date",
+      "readOnly": true
+    },
+    "remindersSent": {
+      "type": "multiEnum",
+      "options": [
+        "30 Days",
+        "14 Days",
+        "7 Days",
+        "3 Days",
+        "1 Day",
+        "Manual"
+      ],
+      "readOnly": true
+    },
+    "paymentReminderHistory": {
+      "type": "text",
+      "readOnly": true
+    },
     "commissionPaidFlag": {
       "type": "bool",
       "default": false
@@ -239,6 +304,17 @@
       "type": "hasMany",
       "entity": "EdtQuote",
       "foreign": "booking"
+    },
+    "paymentReminderRecipient": {
+      "type": "belongsTo",
+      "entity": "User",
+      "foreign": "edtPaymentReminderBookings"
+    },
+    "clientReminderRecipients": {
+      "type": "hasMany",
+      "entity": "Contact",
+      "relationName": "edtBookingReminderRecipient",
+      "foreign": "edtPaymentReminderBookings"
     },
     "assignedUser": {
       "type": "belongsTo",

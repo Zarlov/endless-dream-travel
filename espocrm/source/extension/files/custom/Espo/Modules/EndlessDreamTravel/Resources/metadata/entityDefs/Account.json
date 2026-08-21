@@ -28,6 +28,10 @@
       "type": "varchar",
       "maxLength": 50
     },
+    "edtVendorEmailName": {
+      "type": "varchar",
+      "maxLength": 180
+    },
     "edtVendorStatus": {
       "type": "enum",
       "options": [

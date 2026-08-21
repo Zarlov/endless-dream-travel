@@ -1,9 +1,10 @@
-Endless Dream Travel Data Model 1.0.35
+Endless Dream Travel Data Model 1.0.38
 
 Target: EspoCRM 10.x
 
 Creates nine travel entities and extends Contact and Account. No client data is included.
-Version 1.0.35 automatically calculates Booking Balance Due as Gross Sale minus Amount Paid to Vendor (minimum zero) whenever a Booking is saved.
+Version 1.0.38 adds configurable final-payment reminders, a branded editable client email template, a 6:00 AM daily summary with missing-client-email warnings, a manual Send Payment Reminder action, and Vendor Email Display Name.
+Client reminders default off; reminder days default to 30, 14, 7, 3, and 1. A configured EspoCRM system outbound mailbox is required for delivery.
 Install from Administration > Extensions, then confirm the automatic rebuild completed.
 Review roles before importing data.
 

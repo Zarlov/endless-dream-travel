@@ -1,0 +1,7 @@
+[
+  {
+    "route": "/EdtBooking/:id/payment-reminder",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\EndlessDreamTravel\\Api\\PostEdtBookingPaymentReminder"
+  }
+]

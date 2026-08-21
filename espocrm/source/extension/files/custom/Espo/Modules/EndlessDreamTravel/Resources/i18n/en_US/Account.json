@@ -4,6 +4,7 @@
     "edtVendor": "Is Travel Vendor",
     "edtVendorType": "Vendor Type",
     "edtSupplierCode": "Vendor Code",
+    "edtVendorEmailName": "Email Display Name",
     "edtVendorStatus": "Vendor Status",
     "edtMarketingCategory": "Marketing Category",
     "edtClients": "Clients"

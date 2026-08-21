@@ -1,4 +1,15 @@
 {
   "controller": "controllers/record",
-  "iconClass": "fas fa-suitcase"
+  "iconClass": "fas fa-suitcase",
+  "detailActionList": [
+    {
+      "name": "sendPaymentReminder",
+      "label": "Send Payment Reminder Now",
+      "acl": "edit",
+      "handler": "endless-dream-travel:handlers/booking-payment-reminder",
+      "actionFunction": "sendPaymentReminder",
+      "checkAvailabilityFunction": "isAvailable",
+      "iconClass": "fas fa-paper-plane"
+    }
+  ]
 }

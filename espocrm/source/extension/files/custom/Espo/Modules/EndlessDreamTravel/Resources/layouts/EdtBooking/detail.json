@@ -99,6 +99,44 @@
       ],
       [
         {
+          "name": "paymentReminderEnabled"
+        },
+        {
+          "name": "paymentReminderStatus"
+        }
+      ],
+      [
+        {
+          "name": "reminderDays"
+        },
+        {
+          "name": "paymentReminderRecipient"
+        }
+      ],
+      [
+        {
+          "name": "clientRemindersEnabled"
+        },
+        {
+          "name": "finalPaymentReceived"
+        }
+      ],
+      [
+        {
+          "name": "clientReminderRecipients"
+        },
+        false
+      ],
+      [
+        {
+          "name": "lastReminderDate"
+        },
+        {
+          "name": "remindersSent"
+        }
+      ],
+      [
+        {
           "name": "commissionPaidFlag"
         },
         {

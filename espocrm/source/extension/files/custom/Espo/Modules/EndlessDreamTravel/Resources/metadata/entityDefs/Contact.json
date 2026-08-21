@@ -167,6 +167,12 @@
       "entity": "Account",
       "relationName": "edtVendorClient",
       "foreign": "edtClients"
+    },
+    "edtPaymentReminderBookings": {
+      "type": "hasMany",
+      "entity": "EdtBooking",
+      "relationName": "edtBookingReminderRecipient",
+      "foreign": "clientReminderRecipients"
     }
   },
   "indexes": {

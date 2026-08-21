@@ -1,0 +1,9 @@
+{
+  "EdtFinalPaymentReminder": {
+    "name": "Endless Dream Travel Final Payment Reminders",
+    "isSystem": false,
+    "scheduling": "0 6 * * *",
+    "jobClassName": "Espo\\Modules\\EndlessDreamTravel\\Jobs\\FinalPaymentReminder",
+    "isDefault": true
+  }
+}

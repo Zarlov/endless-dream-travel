@@ -27,6 +27,13 @@
       ],
       [
         {
+          "name": "edtVendorEmailName",
+          "fullWidth": true
+        },
+        false
+      ],
+      [
+        {
           "name": "edtMarketingCategory"
         },
         {

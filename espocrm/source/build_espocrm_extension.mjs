@@ -23,12 +23,12 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.35',
+  version: '1.0.38',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
   releaseDate: '2026-08-21',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.35 automatically calculates Booking Balance Due.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys, including native final-payment reminder automation and branded client email templates.'
 });
 
 const auditFields = {
@@ -528,9 +528,447 @@ class CalculateBalanceDue implements SaveHook
         $grossSale = (float) ($entity->get('grossSale') ?? 0);
         $amountPaid = (float) ($entity->get('amountPaidToSupplier') ?? 0);
 
-        $entity->set('balanceDue', round(max(0, $grossSale - $amountPaid), 2));
+        $balanceDue = round(max(0, $grossSale - $amountPaid), 2);
+        $entity->set('balanceDue', $balanceDue);
+        $entity->set('finalPaymentReceived', $grossSale > 0 && $balanceDue <= 0);
+
+        if ($grossSale > 0 && $balanceDue <= 0) {
+            $entity->set('paymentReminderStatus', 'Completed');
+        } elseif ($balanceDue > 0 && $entity->get('paymentReminderStatus') === 'Completed') {
+            $entity->set('paymentReminderStatus', 'Active');
+        }
     }
 }
+`);
+
+moduleWrite('Classes/RecordHooks/Booking/DefaultPaymentReminderSettings.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+
+class DefaultPaymentReminderSettings implements SaveHook
+{
+    public function __construct(private EntityManager $entityManager)
+    {}
+
+    public function process(Entity $entity): void
+    {
+        if (!$entity->get('reminderDays')) {
+            $entity->set('reminderDays', ['30', '14', '7', '3', '1']);
+        }
+
+        if ($entity->get('paymentReminderRecipientId')) {
+            return;
+        }
+
+        if ($entity->get('assignedUserId')) {
+            $entity->set('paymentReminderRecipientId', $entity->get('assignedUserId'));
+            return;
+        }
+
+        $user = $this->entityManager->getRDBRepository('User')
+            ->where(['userName' => 'ddriver', 'isActive' => true])
+            ->findOne();
+
+        if ($user) {
+            $entity->set('paymentReminderRecipientId', $user->getId());
+        }
+    }
+}
+`);
+
+moduleWrite('Tools/PaymentReminder/ReminderService.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Tools\\PaymentReminder;
+
+use DateTimeImmutable;
+use Espo\\Core\\Field\\LinkParent;
+use Espo\\Core\\Mail\\EmailSender;
+use Espo\\Core\\Utils\\Config;
+use Espo\\Entities\\Email;
+use Espo\\ORM\\Entity;
+use Espo\\ORM\\EntityManager;
+use Espo\\Core\\Utils\\Log;
+
+class ReminderService
+{
+    private const TEMPLATE_NAME = 'Endless Dream Travel - Final Payment Reminder';
+    private const DEFAULT_DAYS = ['30', '14', '7', '3', '1'];
+
+    public function __construct(
+        private EntityManager $entityManager,
+        private EmailSender $emailSender,
+        private Config $config,
+        private Log $logger,
+    ) {}
+
+    public function runDaily(bool $send = true): array
+    {
+        $template = $this->ensureTemplate();
+        $today = new DateTimeImmutable('today');
+        $entriesByUser = [];
+        $scheduledSent = 0;
+        $scheduledSkipped = 0;
+
+        $bookings = $this->entityManager->getRDBRepository('EdtBooking')
+            ->where(['paymentReminderEnabled' => true, 'paymentReminderStatus' => 'Active'])
+            ->find();
+
+        foreach ($bookings as $booking) {
+            $dueRaw = $booking->get('finalPaymentDueDate');
+            $balance = (float) ($booking->get('balanceDue') ?? 0);
+            if (!$dueRaw || $balance <= 0 || in_array($booking->get('status'), ['Canceled', 'Completed', 'Removed from Live Source'], true)) {
+                continue;
+            }
+
+            $due = new DateTimeImmutable((string) $dueRaw);
+            $daysUntil = (int) $today->diff($due)->format('%r%a');
+            if ($daysUntil > 30) {
+                continue;
+            }
+
+            $recipientData = $this->getClientRecipients($booking);
+            $entry = $this->buildSummaryEntry($booking, $daysUntil, $recipientData['missingNames']);
+            $internalUser = $this->getInternalRecipient($booking);
+            if ($internalUser && $internalUser->get('emailAddress')) {
+                $entriesByUser[$internalUser->getId()] ??= ['user' => $internalUser, 'entries' => []];
+                $entriesByUser[$internalUser->getId()]['entries'][] = $entry;
+            } else {
+                $this->logger->warning('Payment reminder has no internal recipient email for Booking ' . $booking->getId());
+            }
+
+            $days = array_map('strval', $booking->get('reminderDays') ?: self::DEFAULT_DAYS);
+            $historyKey = (string) $dueRaw . ':' . $daysUntil;
+            $history = $this->decodeHistory($booking);
+            if (!$booking->get('clientRemindersEnabled') || !in_array((string) $daysUntil, $days, true) || in_array($historyKey, $history, true)) {
+                continue;
+            }
+
+            $result = $this->sendClientReminder($booking, $template, $recipientData, $send);
+            if ($result['sent']) {
+                $history[] = $historyKey;
+                $this->recordSent($booking, $history, $daysUntil === 1 ? '1 Day' : $daysUntil . ' Days');
+                $scheduledSent++;
+            } else {
+                $scheduledSkipped++;
+            }
+        }
+
+        $digestSent = 0;
+        foreach ($entriesByUser as $group) {
+            if ($send && $this->emailSender->hasSystemSmtp()) {
+                $this->sendDigest($group['user'], $group['entries']);
+                $digestSent++;
+            }
+        }
+
+        $result = [
+            'smtpConfigured' => $this->emailSender->hasSystemSmtp(),
+            'digestRecipientCount' => count($entriesByUser),
+            'bookingCount' => array_sum(array_map(fn ($group) => count($group['entries']), $entriesByUser)),
+            'digestSent' => $digestSent,
+            'clientRemindersSent' => $scheduledSent,
+            'clientRemindersSkipped' => $scheduledSkipped,
+            'testMode' => !$send,
+        ];
+
+        $this->logger->info('Final payment reminder daily review: ' . json_encode($result));
+        return $result;
+    }
+
+    public function sendNow(Entity $booking, bool $send = true): array
+    {
+        $template = $this->ensureTemplate();
+        $recipientData = $this->getClientRecipients($booking);
+        $result = $this->sendClientReminder($booking, $template, $recipientData, $send);
+
+        if ($result['sent']) {
+            $history = $this->decodeHistory($booking);
+            $history[] = 'manual:' . (new DateTimeImmutable())->format('Y-m-d H:i:s');
+            $this->recordSent($booking, $history, 'Manual');
+        }
+
+        return $result + ['bookingId' => $booking->getId(), 'testMode' => !$send];
+    }
+
+    private function sendClientReminder(Entity $booking, Entity $template, array $recipientData, bool $send): array
+    {
+        $addresses = $recipientData['addresses'];
+        if (!$addresses) {
+            return ['sent' => false, 'smtpConfigured' => $this->emailSender->hasSystemSmtp(), 'recipientCount' => 0, 'missingClients' => $recipientData['missingNames'], 'reason' => 'No client recipient has an email address.'];
+        }
+
+        $body = $this->renderTemplate((string) $template->get('body'), $booking, $recipientData['firstName']);
+        $subject = $this->renderTemplate((string) $template->get('subject'), $booking, $recipientData['firstName'], true);
+
+        if (!$send || !$this->emailSender->hasSystemSmtp()) {
+            return ['sent' => false, 'smtpConfigured' => $this->emailSender->hasSystemSmtp(), 'recipientCount' => count($addresses), 'missingClients' => $recipientData['missingNames'], 'reason' => $send ? 'Outbound email is not configured.' : 'Test mode; no email sent.', 'subject' => $subject];
+        }
+
+        $email = $this->entityManager->getRDBRepositoryByClass(Email::class)->getNew();
+        foreach ($addresses as $address) {
+            $email->addToAddress($address);
+        }
+        $email->setSubject($subject);
+        $email->setBody($body);
+        $email->setIsHtml();
+        $email->setParent(LinkParent::fromEntity($booking));
+        $this->emailSender->send($email);
+
+        return ['sent' => true, 'smtpConfigured' => true, 'recipientCount' => count($addresses), 'missingClients' => $recipientData['missingNames'], 'reason' => null, 'subject' => $subject];
+    }
+
+    private function getClientRecipients(Entity $booking): array
+    {
+        $contacts = $this->entityManager->getRDBRepository('EdtBooking')
+            ->getRelation($booking, 'clientReminderRecipients')
+            ->find();
+
+        if (!count($contacts) && $booking->get('primaryTravelerId')) {
+            $primary = $this->entityManager->getEntityById('Contact', (string) $booking->get('primaryTravelerId'));
+            $contacts = $primary ? [$primary] : [];
+        }
+
+        $addresses = [];
+        $missingNames = [];
+        $firstName = 'Traveler';
+        foreach ($contacts as $index => $contact) {
+            if ($index === 0) {
+                $firstName = (string) ($contact->get('firstName') ?: $contact->get('name') ?: 'Traveler');
+            }
+            $address = trim((string) $contact->get('emailAddress'));
+            if ($address) {
+                $addresses[] = $address;
+            } else {
+                $missingNames[] = (string) ($contact->get('name') ?: $contact->getId());
+            }
+        }
+
+        return ['addresses' => array_values(array_unique($addresses)), 'missingNames' => $missingNames, 'firstName' => $firstName];
+    }
+
+    private function getInternalRecipient(Entity $booking): ?Entity
+    {
+        $id = $booking->get('paymentReminderRecipientId') ?: $booking->get('assignedUserId');
+        if ($id) {
+            $user = $this->entityManager->getEntityById('User', (string) $id);
+            if ($user) {
+                return $user;
+            }
+        }
+
+        return $this->entityManager->getRDBRepository('User')
+            ->where(['userName' => 'ddriver', 'isActive' => true])
+            ->findOne();
+    }
+
+    private function buildSummaryEntry(Entity $booking, int $daysUntil, array $missingNames): array
+    {
+        $vendor = $booking->get('supplierId') ? $this->entityManager->getEntityById('Account', (string) $booking->get('supplierId')) : null;
+        return [
+            'name' => (string) $booking->get('name'),
+            'id' => (string) $booking->getId(),
+            'vendor' => (string) ($vendor?->get('edtVendorEmailName') ?: $vendor?->get('name') ?: 'Not selected'),
+            'due' => (string) $booking->get('finalPaymentDueDate'),
+            'daysUntil' => $daysUntil,
+            'balance' => (float) ($booking->get('balanceDue') ?? 0),
+            'missingNames' => $missingNames,
+        ];
+    }
+
+    private function sendDigest(Entity $user, array $entries): void
+    {
+        $siteUrl = rtrim((string) $this->config->get('siteUrl'), '/');
+        $rows = '';
+        foreach ($entries as $entry) {
+            $missing = $entry['missingNames'] ? '<div style="color:#b42318;font-weight:700">Missing email: ' . $this->esc(implode(', ', $entry['missingNames'])) . '</div>' : '<span style="color:#067647">Email available</span>';
+            $timing = $entry['daysUntil'] < 0 ? abs($entry['daysUntil']) . ' days overdue' : $entry['daysUntil'] . ' days remaining';
+            $rows .= '<tr><td style="padding:10px;border-bottom:1px solid #ddd"><a href="' . $this->esc($siteUrl . '/#EdtBooking/view/' . $entry['id']) . '">' . $this->esc($entry['name']) . '</a></td><td style="padding:10px;border-bottom:1px solid #ddd">' . $this->esc($entry['vendor']) . '</td><td style="padding:10px;border-bottom:1px solid #ddd">' . $this->formatDate($entry['due']) . '<br>' . $this->esc($timing) . '</td><td style="padding:10px;border-bottom:1px solid #ddd;text-align:right">' . $this->money($entry['balance']) . '</td><td style="padding:10px;border-bottom:1px solid #ddd">' . $missing . '</td></tr>';
+        }
+
+        $body = '<div style="font-family:Arial,sans-serif;color:#1f2937"><img src="' . $this->esc($siteUrl . '/client/custom/modules/endless-dream-travel/img/logo-light.png') . '" alt="Endless Dream Travel" style="max-width:260px;height:auto"><h2>Final Payment Daily Summary</h2><p>The following Bookings are due within 30 days or are overdue.</p><table style="border-collapse:collapse;width:100%"><thead><tr style="background:#173f67;color:#fff"><th style="padding:10px;text-align:left">Booking</th><th style="padding:10px;text-align:left">Vendor</th><th style="padding:10px;text-align:left">Due</th><th style="padding:10px;text-align:right">Balance</th><th style="padding:10px;text-align:left">Client email</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
+        $email = $this->entityManager->getRDBRepositoryByClass(Email::class)->getNew();
+        $email->addToAddress((string) $user->get('emailAddress'));
+        $email->setSubject('Endless Dream Travel - Final Payment Daily Summary');
+        $email->setBody($body);
+        $email->setIsHtml();
+        $this->emailSender->send($email);
+    }
+
+    private function ensureTemplate(): Entity
+    {
+        $template = $this->entityManager->getRDBRepository('EmailTemplate')->where(['name' => self::TEMPLATE_NAME])->findOne();
+        if ($template) {
+            return $template;
+        }
+
+        $template = $this->entityManager->getRDBRepository('EmailTemplate')->getNew();
+        $template->set([
+            'name' => self::TEMPLATE_NAME,
+            'subject' => 'Final payment reminder for {{bookingName}}',
+            'status' => 'Active',
+            'isHtml' => true,
+            'description' => 'Editable transactional template used by the Endless Dream Travel final-payment reminder service.',
+            'body' => '<div style="margin:0;padding:24px;background:#f4f7fa;font-family:Arial,sans-serif;color:#243447"><div style="max-width:680px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #d9e2ec"><div style="padding:22px 28px;background:#173f67"><img src="{{logoUrl}}" alt="Endless Dream Travel" style="max-width:280px;height:auto"></div><div style="padding:30px"><p>Hello {{clientName}},</p><p>This is a friendly reminder that the final payment for your upcoming travel booking is due on <strong>{{finalPaymentDueDate}}</strong>.</p><table style="width:100%;border-collapse:collapse;margin:22px 0"><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Trip</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{tripName}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Booking</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{bookingName}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Vendor</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{vendorLongName}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Confirmation</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{confirmationNumber}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Total booking cost</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{grossSale}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Amount paid</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb">{{amountPaid}}</td></tr><tr><td style="padding:9px;border-bottom:1px solid #e5e7eb"><strong>Balance due</strong></td><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#b54708"><strong>{{balanceDue}}</strong></td></tr></table><p>Please contact us if you have questions or need assistance completing payment.</p><p>Warm regards,<br><strong>Endless Dream Travel</strong></p></div></div></div>',
+        ]);
+        $this->entityManager->saveEntity($template);
+        return $template;
+    }
+
+    private function renderTemplate(string $value, Entity $booking, string $clientName, bool $plain = false): string
+    {
+        $trip = $booking->get('tripId') ? $this->entityManager->getEntityById('EdtTrip', (string) $booking->get('tripId')) : null;
+        $vendor = $booking->get('supplierId') ? $this->entityManager->getEntityById('Account', (string) $booking->get('supplierId')) : null;
+        $siteUrl = rtrim((string) $this->config->get('siteUrl'), '/');
+        $data = [
+            '{{logoUrl}}' => $siteUrl . '/client/custom/modules/endless-dream-travel/img/logo-light.png',
+            '{{clientName}}' => $clientName,
+            '{{tripName}}' => (string) ($trip?->get('name') ?: 'Your upcoming trip'),
+            '{{bookingName}}' => (string) ($booking->get('name') ?: 'Travel booking'),
+            '{{vendorLongName}}' => (string) ($vendor?->get('edtVendorEmailName') ?: $vendor?->get('name') ?: 'Travel vendor'),
+            '{{confirmationNumber}}' => (string) ($booking->get('confirmationNumber') ?: 'Pending'),
+            '{{grossSale}}' => $this->money((float) ($booking->get('grossSale') ?? 0)),
+            '{{amountPaid}}' => $this->money((float) ($booking->get('amountPaidToSupplier') ?? 0)),
+            '{{balanceDue}}' => $this->money((float) ($booking->get('balanceDue') ?? 0)),
+            '{{finalPaymentDueDate}}' => $this->formatDate((string) $booking->get('finalPaymentDueDate')),
+        ];
+        if (!$plain) {
+            $data = array_map(fn ($item) => $this->esc($item), $data);
+        }
+        return strtr($value, $data);
+    }
+
+    private function recordSent(Entity $booking, array $history, string $label): void
+    {
+        $labels = array_values(array_unique(array_merge($booking->get('remindersSent') ?: [], [$label])));
+        $booking->set('paymentReminderHistory', json_encode(array_values(array_unique($history))));
+        $booking->set('remindersSent', $labels);
+        $booking->set('lastReminderDate', (new DateTimeImmutable())->format('Y-m-d'));
+        $this->entityManager->saveEntity($booking);
+    }
+
+    private function decodeHistory(Entity $booking): array
+    {
+        $raw = $booking->get('paymentReminderHistory');
+        if (!$raw) {
+            return [];
+        }
+        $decoded = json_decode((string) $raw, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private function formatDate(string $value): string
+    {
+        return $value ? (new DateTimeImmutable($value))->format('m/d/y') : 'Not set';
+    }
+
+    private function money(float $value): string
+    {
+        return '$' . number_format($value, 2);
+    }
+
+    private function esc(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}
+`);
+
+moduleWrite('Jobs/FinalPaymentReminder.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Jobs;
+
+use Espo\\Core\\Job\\JobDataLess;
+use Espo\\Modules\\EndlessDreamTravel\\Tools\\PaymentReminder\\ReminderService;
+
+class FinalPaymentReminder implements JobDataLess
+{
+    public function __construct(private ReminderService $service)
+    {}
+
+    public function run(): void
+    {
+        $this->service->runDaily(true);
+    }
+}
+`);
+
+moduleWrite('Api/PostEdtBookingPaymentReminder.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Api;
+
+use Espo\\Core\\Acl;
+use Espo\\Core\\Api\\Action;
+use Espo\\Core\\Api\\Request;
+use Espo\\Core\\Api\\Response;
+use Espo\\Core\\Api\\ResponseComposer;
+use Espo\\Core\\Exceptions\\BadRequest;
+use Espo\\Core\\Exceptions\\Forbidden;
+use Espo\\Core\\Record\\EntityProvider;
+use Espo\\Modules\\EndlessDreamTravel\\Entities\\EdtBooking;
+use Espo\\Modules\\EndlessDreamTravel\\Tools\\PaymentReminder\\ReminderService;
+
+class PostEdtBookingPaymentReminder implements Action
+{
+    public function __construct(private EntityProvider $entityProvider, private Acl $acl, private ReminderService $service)
+    {}
+
+    public function process(Request $request): Response
+    {
+        $id = $request->getRouteParam('id') ?? throw new BadRequest('Booking ID is required.');
+        $booking = $this->entityProvider->getByClass(EdtBooking::class, $id);
+        if (!$this->acl->checkEntityEdit($booking)) {
+            throw new Forbidden('No edit access.');
+        }
+        return ResponseComposer::json($this->service->sendNow($booking, true));
+    }
+}
+`);
+
+moduleWrite('Resources/routes.json', [
+  { route: '/EdtBooking/:id/payment-reminder', method: 'post', actionClassName: 'Espo\\Modules\\EndlessDreamTravel\\Api\\PostEdtBookingPaymentReminder' }
+]);
+
+moduleWrite('Resources/metadata/app/scheduledJobs.json', {
+  EdtFinalPaymentReminder: {
+    name: 'Endless Dream Travel Final Payment Reminders',
+    isSystem: false,
+    scheduling: '0 6 * * *',
+    jobClassName: 'Espo\\Modules\\EndlessDreamTravel\\Jobs\\FinalPaymentReminder',
+    isDefault: true
+  }
+});
+
+moduleWrite('Resources/i18n/en_US/ScheduledJob.json', { options: { job: { EdtFinalPaymentReminder: 'Endless Dream Travel Final Payment Reminders' } } });
+
+write('files/client/custom/modules/endless-dream-travel/src/handlers/booking-payment-reminder.js', `define(['action-handler'], function (ActionHandler) {
+    return class extends ActionHandler {
+        async sendPaymentReminder() {
+            await this.view.confirm({
+                message: 'Send a final-payment reminder to the configured client recipients now?',
+                confirmText: 'Send Reminder',
+                confirmStyle: 'warning'
+            });
+            Espo.Ui.notify('Sending reminder...');
+            try {
+                const result = await Espo.Ajax.postRequest('EdtBooking/' + this.view.model.id + '/payment-reminder', {});
+                Espo.Ui.notify();
+                if (result.sent) {
+                    Espo.Ui.success('Payment reminder sent to ' + result.recipientCount + ' recipient(s).');
+                    await this.view.model.fetch();
+                    return;
+                }
+                Espo.Ui.warning(result.reason || 'The reminder was not sent.');
+            } catch (e) {
+                Espo.Ui.notify();
+                throw e;
+            }
+        }
+
+        isAvailable() {
+            return !!this.view.model.get('finalPaymentDueDate') && Number(this.view.model.get('balanceDue') || 0) > 0;
+        }
+    };
+});
 `);
 
 write('files/client/custom/modules/endless-dream-travel/src/views/fields/trip-end-date.js', `define('endless-dream-travel:views/fields/trip-end-date', ['views/fields/date'], function (DateFieldView) {
@@ -947,6 +1385,8 @@ const entities = {
       financialTreatment: field('enum', { options: ['Separate Sale','Included in Parent Price','Non-Reportable','Review'], default: 'Separate Sale' }), includedInParentPrice: field('bool', { default: false }), reportableSale: field('bool', { default: true }),
       travelDateRaw: field('varchar', { maxLength: 255 }), travelStartDate: field('date'), travelEndDate: field('date'), serviceStartDate: field('date'), serviceEndDate: field('date'), finalPaymentDueDate: field('date'), bookingYear: field('int', { disableFormatting: true, view: 'endless-dream-travel:views/fields/booking-year' }),
       status: field('enum', { options: ['Quoted','Booked','Completed','Canceled','Removed from Live Source'], default: 'Booked' }), grossSale: field('currency'), amountPaidToSupplier: field('currency'), balanceDue: field('currency'), expectedCommission: field('currency'),
+      paymentReminderEnabled: field('bool', { default: true }), clientRemindersEnabled: field('bool', { default: false }), reminderDays: field('multiEnum', { options: ['30','14','7','3','1'], default: ['30','14','7','3','1'] }), paymentReminderRecipient: field('link'), clientReminderRecipients: field('linkMultiple'),
+      paymentReminderStatus: field('enum', { options: ['Active','Paused','Completed'], default: 'Active' }), finalPaymentReceived: field('bool', { default: false, readOnly: true }), lastReminderDate: field('date', { readOnly: true }), remindersSent: field('multiEnum', { options: ['30 Days','14 Days','7 Days','3 Days','1 Day','Manual'], readOnly: true }), paymentReminderHistory: field('text', { readOnly: true }),
       commissionPaidFlag: field('bool', { default: false }), bonusAmount: field('currency'), bonusPaidFlag: field('bool', { default: false }), feesFlag: field('bool', { default: false }), thankYouSentFlag: field('bool', { default: false }),
       cliaStateroomFlag: field('bool', { default: false }), cliaStateroomValue: field('varchar', { maxLength: 100 }), onBoardExcursion: field('varchar', { maxLength: 255 }),
       attachments: field('attachmentMultiple', { view: 'endless-dream-travel:views/fields/quote-attachments' }), notes: field('text'), assignedUser: field('link'), teams: field('linkMultiple')
@@ -955,10 +1395,11 @@ const entities = {
       trip: link('belongsTo', 'EdtTrip', 'bookings'), household: link('belongsTo', 'EdtHousehold', 'bookings'), primaryTraveler: link('belongsTo', 'Contact', 'primaryBookings'), supplier: link('belongsTo', 'Account', 'edtBookings'),
       parentComponent: link('belongsTo', 'EdtBooking', 'childComponents'), childComponents: link('hasMany', 'EdtBooking', 'parentComponent'), mainForTrips: link('hasMany', 'EdtTrip', 'mainBooking'),
       bookingTravelers: link('hasMany', 'EdtBookingTraveler', 'booking', { audited: true }), commissions: link('hasMany', 'EdtCommission', 'booking', { audited: true }), quotes: link('hasMany', 'EdtQuote', 'booking'),
+      paymentReminderRecipient: link('belongsTo', 'User', 'edtPaymentReminderBookings'), clientReminderRecipients: { type: 'hasMany', entity: 'Contact', relationName: 'edtBookingReminderRecipient', foreign: 'edtPaymentReminderBookings' },
       assignedUser: link('belongsTo', 'User', 'edtBookings'), teams: { type: 'hasMany', entity: 'Team', relationName: 'entityTeam' }
     },
     indexes: { externalIdUnique: { columns: ['externalId'], unique: true }, confirmationNumber: { columns: ['confirmationNumber'] }, travelDates: { columns: ['travelStartDate','travelEndDate'] } },
-    detail: [['name','externalId'],['trip','household'],['primaryTraveler','supplier'],['confirmationNumber','status'],['componentType','componentRole'],['parentComponent','financialTreatment'],['includedInParentPrice','reportableSale'],['travelStartDate','travelEndDate'],['serviceStartDate','serviceEndDate'],['finalPaymentDueDate','bookingYear'],['grossSale','amountPaidToSupplier'],['balanceDue','expectedCommission'],['commissionPaidFlag','bonusAmount'],['bonusPaidFlag','feesFlag'],['thankYouSentFlag',false],['attachments',false],['notes','teams']],
+    detail: [['name','externalId'],['trip','household'],['primaryTraveler','supplier'],['confirmationNumber','status'],['componentType','componentRole'],['parentComponent','financialTreatment'],['includedInParentPrice','reportableSale'],['travelStartDate','travelEndDate'],['serviceStartDate','serviceEndDate'],['finalPaymentDueDate','bookingYear'],['grossSale','amountPaidToSupplier'],['balanceDue','expectedCommission'],['paymentReminderEnabled','paymentReminderStatus'],['reminderDays','paymentReminderRecipient'],['clientRemindersEnabled','finalPaymentReceived'],['clientReminderRecipients',false],['lastReminderDate','remindersSent'],['commissionPaidFlag','bonusAmount'],['bonusPaidFlag','feesFlag'],['thankYouSentFlag',false],['attachments',false],['notes','teams']],
     list: ['name','trip','supplier','confirmationNumber','componentType','travelStartDate','status','grossSale','expectedCommission'],
     filters: ['name','externalId','trip','household','primaryTraveler','supplier','confirmationNumber','componentType','componentRole','travelStartDate','travelEndDate','status','bookingYear','assignedUser','teams'],
     bottom: ['bookingTravelers','commissions','quotes','childComponents','mainForTrips']
@@ -1018,16 +1459,16 @@ const standardFields = {
     links: {
       household: link('belongsTo', 'EdtHousehold', 'contacts'), primaryHouseholds: link('hasMany', 'EdtHousehold', 'primaryTraveler'), primaryTrips: link('hasMany', 'EdtTrip', 'primaryTraveler'), primaryBookings: link('hasMany', 'EdtBooking', 'primaryTraveler'), primaryQuotes: link('hasMany', 'EdtQuote', 'primaryContact'),
       edtTripTravelers: link('hasMany', 'EdtTripTraveler', 'contact'), edtBookingTravelers: link('hasMany', 'EdtBookingTraveler', 'contact'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'contact'), edtSegmentMemberships: link('hasMany', 'EdtSegmentMembership', 'contact'),
-      edtQuotes: { type: 'hasMany', entity: 'EdtQuote', relationName: 'edtQuoteContact', foreign: 'clients' }, edtVendors: { type: 'hasMany', entity: 'Account', relationName: 'edtVendorClient', foreign: 'edtClients' }
+      edtQuotes: { type: 'hasMany', entity: 'EdtQuote', relationName: 'edtQuoteContact', foreign: 'clients' }, edtVendors: { type: 'hasMany', entity: 'Account', relationName: 'edtVendorClient', foreign: 'edtClients' }, edtPaymentReminderBookings: { type: 'hasMany', entity: 'EdtBooking', relationName: 'edtBookingReminderRecipient', foreign: 'clientReminderRecipients' }
     },
     indexes: { edtExternalIdUnique: { columns: ['edtExternalId'], unique: true } }
   },
   Account: {
-    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true, relateOnImport: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }), edtMarketingCategory: field('enum', { options: ['Cruise','Disney','Universal','Resort','Tour / Excursion','Insurance','Transportation','Air','Other'] }), edtClients: field('linkMultiple') },
+    fields: { edtVendorExternalId: field('varchar', { maxLength: 60, index: true, relateOnImport: true }), edtVendor: field('bool', { default: false }), edtVendorType: field('enum', { options: ['Cruise Line','Theme Park','Resort / Hotel','Tour / Excursion','Insurance','Transportation','Airline','Wholesaler','Other'] }), edtSupplierCode: field('varchar', { maxLength: 50 }), edtVendorEmailName: field('varchar', { maxLength: 180 }), edtVendorStatus: field('enum', { options: ['Active','Inactive'], default: 'Active' }), edtMarketingCategory: field('enum', { options: ['Cruise','Disney','Universal','Resort','Tour / Excursion','Insurance','Transportation','Air','Other'] }), edtClients: field('linkMultiple') },
     links: { edtBookings: link('hasMany', 'EdtBooking', 'supplier'), edtCommissions: link('hasMany', 'EdtCommission', 'supplier'), edtQuotes: link('hasMany', 'EdtQuote', 'supplier'), edtLoyaltyMemberships: link('hasMany', 'EdtLoyaltyMembership', 'supplier'), edtClients: { type: 'hasMany', entity: 'Contact', relationName: 'edtVendorClient', foreign: 'edtVendors' } },
     indexes: { edtVendorExternalIdUnique: { columns: ['edtVendorExternalId'], unique: true } }
   },
-  User: { fields: {}, links: { edtHouseholds: link('hasMany','EdtHousehold','assignedUser'), edtTrips: link('hasMany','EdtTrip','assignedUser'), edtBookings: link('hasMany','EdtBooking','assignedUser'), edtCommissions: link('hasMany','EdtCommission','assignedUser'), edtQuotes: link('hasMany','EdtQuote','assignedUser'), edtLoyaltyMemberships: link('hasMany','EdtLoyaltyMembership','assignedUser') } }
+  User: { fields: {}, links: { edtHouseholds: link('hasMany','EdtHousehold','assignedUser'), edtTrips: link('hasMany','EdtTrip','assignedUser'), edtBookings: link('hasMany','EdtBooking','assignedUser'), edtPaymentReminderBookings: link('hasMany','EdtBooking','paymentReminderRecipient'), edtCommissions: link('hasMany','EdtCommission','assignedUser'), edtQuotes: link('hasMany','EdtQuote','assignedUser'), edtLoyaltyMemberships: link('hasMany','EdtLoyaltyMembership','assignedUser') } }
 };
 
 const entityIconClasses = {
@@ -1136,6 +1577,7 @@ const vendorDetailLayout = [{
     [{ name: 'name', fullWidth: true }, false],
     [{ name: 'edtVendorExternalId' }, { name: 'edtVendorStatus' }],
     [{ name: 'edtVendorType' }, { name: 'edtSupplierCode' }],
+    [{ name: 'edtVendorEmailName', fullWidth: true }, false],
     [{ name: 'edtMarketingCategory' }, { name: 'edtVendor' }],
     [{ name: 'website' }, { name: 'phoneNumber' }],
     [{ name: 'description', fullWidth: true }, false]
@@ -1155,11 +1597,24 @@ moduleWrite('Resources/metadata/recordDefs/Contact.json', {
   afterCreateHookClassNameList: ['Espo\\Modules\\Crm\\Classes\\RecordHooks\\Contact\\AfterCreate', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\AfterCreateHousehold']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtBooking.json', {
-  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
-  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\DefaultPaymentReminderSettings', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\DefaultPaymentReminderSettings', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
   afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
   afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
   afterDeleteHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals']
+});
+moduleWrite('Resources/metadata/clientDefs/EdtBooking.json', {
+  controller: 'controllers/record',
+  iconClass: entityIconClasses.EdtBooking,
+  detailActionList: [{
+    name: 'sendPaymentReminder',
+    label: 'Send Payment Reminder Now',
+    acl: 'edit',
+    handler: 'endless-dream-travel:handlers/booking-payment-reminder',
+    actionFunction: 'sendPaymentReminder',
+    checkAvailabilityFunction: 'isAvailable',
+    iconClass: 'fas fa-paper-plane'
+  }]
 });
 moduleWrite('Resources/metadata/recordDefs/EdtBookingTraveler.json', {
   beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId'],
@@ -1271,13 +1726,13 @@ for (const [name, def] of Object.entries(entities)) {
   moduleWrite(`Resources/i18n/en_US/${name}.json`, { labels: { [`Create ${name}`]: `Create ${def.label}` }, fields, links, options });
 }
 
-moduleWrite('Resources/i18n/en_US/Contact.json', { fields: { accounts: 'Vendors', account: 'Primary Vendor', title: 'Vendor Contact Title', edtExternalId: 'Traveler External ID', household: 'Household', isPrimaryHouseholdContact: 'Primary Household Contact', edtAutoCreateHousehold: 'Create Household Automatically', edtAddressLine1: 'Address 1', edtAddressLine2: 'Address 2', edtCity: 'City', edtState: 'State', edtPostalCode: 'ZIP Code', edtCountry: 'Country', edtDateOfBirth: 'Date of Birth', marketingOptIn: 'Marketing Opt-In', travelerStatus: 'Traveler Status', nameParseConfidence: 'Name Parse Confidence', sourceNameExample: 'Source Name Example', manualReviewNote: 'Manual Review Note', totalBookings: 'Total Bookings', lifetimeSales: 'Lifetime Sales', lifetimeCommission: 'Lifetime Commission', lastTravelYear: 'Last Travel Year', vendorsBooked: 'Vendors Booked', marketingSegments: 'Marketing Segments' }, links: { accounts: 'Vendors', account: 'Primary Vendor', household: 'Household', primaryHouseholds: 'Primary Households', primaryTrips: 'Primary Trips', primaryBookings: 'Primary Bookings', primaryQuotes: 'Primary Quotes', edtTripTravelers: 'Trip Travelers', edtBookingTravelers: 'Booking Travelers', edtLoyaltyMemberships: 'Loyalty Memberships', edtSegmentMemberships: 'Segment Memberships' }, options: { marketingOptIn: { Unknown:'Unknown','Opted In':'Opted In','Opted Out':'Opted Out' }, travelerStatus: { Prospect:'Prospect',Customer:'Customer',Inactive:'Inactive' }, nameParseConfidence: { Corrected:'Corrected',High:'High',Medium:'Medium',Low:'Low' } } });
+moduleWrite('Resources/i18n/en_US/Contact.json', { fields: { accounts: 'Vendors', account: 'Primary Vendor', title: 'Vendor Contact Title', edtExternalId: 'Traveler External ID', household: 'Household', isPrimaryHouseholdContact: 'Primary Household Contact', edtAutoCreateHousehold: 'Create Household Automatically', edtAddressLine1: 'Address 1', edtAddressLine2: 'Address 2', edtCity: 'City', edtState: 'State', edtPostalCode: 'ZIP Code', edtCountry: 'Country', edtDateOfBirth: 'Date of Birth', marketingOptIn: 'Marketing Opt-In', travelerStatus: 'Traveler Status', nameParseConfidence: 'Name Parse Confidence', sourceNameExample: 'Source Name Example', manualReviewNote: 'Manual Review Note', totalBookings: 'Total Bookings', lifetimeSales: 'Lifetime Sales', lifetimeCommission: 'Lifetime Commission', lastTravelYear: 'Last Travel Year', vendorsBooked: 'Vendors Booked', marketingSegments: 'Marketing Segments' }, links: { accounts: 'Vendors', account: 'Primary Vendor', household: 'Household', primaryHouseholds: 'Primary Households', primaryTrips: 'Primary Trips', primaryBookings: 'Primary Bookings', primaryQuotes: 'Primary Quotes', edtTripTravelers: 'Trip Travelers', edtBookingTravelers: 'Booking Travelers', edtLoyaltyMemberships: 'Loyalty Memberships', edtSegmentMemberships: 'Segment Memberships', edtPaymentReminderBookings: 'Payment Reminder Bookings' }, options: { marketingOptIn: { Unknown:'Unknown','Opted In':'Opted In','Opted Out':'Opted Out' }, travelerStatus: { Prospect:'Prospect',Customer:'Customer',Inactive:'Inactive' }, nameParseConfidence: { Corrected:'Corrected',High:'High',Medium:'Medium',Low:'Low' } } });
 const contactI18nPath = path.join(moduleRoot, 'Resources/i18n/en_US/Contact.json');
 const contactI18n = JSON.parse(fs.readFileSync(contactI18nPath, 'utf8'));
 contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
-moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
+moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorEmailName:'Email Display Name', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.35\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.35 automatically calculates Booking Balance Due as Gross Sale minus Amount Paid to Vendor (minimum zero) whenever a Booking is saved.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.38\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.38 adds configurable final-payment reminders, a branded editable client email template, a 6:00 AM daily summary with missing-client-email warnings, a manual Send Payment Reminder action, and Vendor Email Display Name.\nClient reminders default off; reminder days default to 30, 14, 7, 3, and 1. A configured EspoCRM system outbound mailbox is required for delivery.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

@@ -38,7 +38,8 @@
     "edtTripTravelers": "Trip Travelers",
     "edtBookingTravelers": "Booking Travelers",
     "edtLoyaltyMemberships": "Loyalty Memberships",
-    "edtSegmentMemberships": "Segment Memberships"
+    "edtSegmentMemberships": "Segment Memberships",
+    "edtPaymentReminderBookings": "Payment Reminder Bookings"
   },
   "options": {
     "marketingOptIn": {

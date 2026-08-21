@@ -1,6 +1,6 @@
 {
   "name": "Endless Dream Travel Data Model",
-  "version": "1.0.35",
+  "version": "1.0.38",
   "acceptableVersions": [
     ">=10.0.0 <11.0.0"
   ],
@@ -9,5 +9,5 @@
   ],
   "releaseDate": "2026-08-21",
   "author": "Endless Dream Travel",
-  "description": "Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.35 automatically calculates Booking Balance Due."
+  "description": "Travel CRM entities, fields, relationships, layouts and import keys, including native final-payment reminder automation and branded client email templates."
 }

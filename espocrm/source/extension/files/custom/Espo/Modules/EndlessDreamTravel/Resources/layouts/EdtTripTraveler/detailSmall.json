@@ -19,9 +19,7 @@
         {
           "name": "externalId"
         },
-        {
-          "name": "source"
-        }
+        false
       ]
     ]
   }

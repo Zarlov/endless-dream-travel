@@ -7,8 +7,7 @@
     "externalId": "Trip Traveler External ID",
     "trip": "Trip",
     "contact": "Client",
-    "travelerRole": "Traveler Role",
-    "source": "Source"
+    "travelerRole": "Traveler Role"
   },
   "links": {
     "trip": "Trip",

@@ -29,10 +29,6 @@
       ],
       "default": "Traveler"
     },
-    "source": {
-      "type": "varchar",
-      "maxLength": 255
-    },
     "createdAt": {
       "type": "datetime",
       "readOnly": true,

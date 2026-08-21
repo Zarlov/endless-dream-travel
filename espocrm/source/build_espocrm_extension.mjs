@@ -23,12 +23,12 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.34',
+  version: '1.0.35',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
   releaseDate: '2026-08-21',
   author: 'Endless Dream Travel',
-  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.34 removes obsolete Trip Traveler import-tracing fields.'
+  description: 'Travel CRM entities, fields, relationships, layouts and import keys for households, trips, bookings, commissions, loyalty and marketing segmentation. Version 1.0.35 automatically calculates Booking Balance Due.'
 });
 
 const auditFields = {
@@ -511,6 +511,24 @@ class SyncBookingCommissionSupplier implements SaveHook
             $commission->set('supplierId', $bookingSupplierId);
             $this->entityManager->saveEntity($commission);
         }
+    }
+}
+`);
+
+moduleWrite('Classes/RecordHooks/Booking/CalculateBalanceDue.php', `<?php
+namespace Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking;
+
+use Espo\\Core\\Record\\Hook\\SaveHook;
+use Espo\\ORM\\Entity;
+
+class CalculateBalanceDue implements SaveHook
+{
+    public function process(Entity $entity): void
+    {
+        $grossSale = (float) ($entity->get('grossSale') ?? 0);
+        $amountPaid = (float) ($entity->get('amountPaidToSupplier') ?? 0);
+
+        $entity->set('balanceDue', round(max(0, $grossSale - $amountPaid), 2));
     }
 }
 `);
@@ -1137,8 +1155,8 @@ moduleWrite('Resources/metadata/recordDefs/Contact.json', {
   afterCreateHookClassNameList: ['Espo\\Modules\\Crm\\Classes\\RecordHooks\\Contact\\AfterCreate', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\AfterCreateHousehold']
 });
 moduleWrite('Resources/metadata/recordDefs/EdtBooking.json', {
-  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
-  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges'],
+  beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
+  beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue'],
   afterCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
   afterUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\SyncVendorClients', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\EnsureCommissionRecord', 'Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals'],
   afterDeleteHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\RecalculateTripTotals']
@@ -1260,6 +1278,6 @@ contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
 moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.34\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.34 removes the obsolete Trip Traveler Manual Review Required and Source fields while preserving the automatic relationship workflows from 1.0.32.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.35\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.35 automatically calculates Booking Balance Due as Gross Sale minus Amount Paid to Vendor (minimum zero) whenever a Booking is saved.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

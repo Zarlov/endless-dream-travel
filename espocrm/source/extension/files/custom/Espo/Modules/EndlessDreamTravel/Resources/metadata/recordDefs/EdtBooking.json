@@ -3,12 +3,14 @@
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\GenerateExternalId",
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext",
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier",
-    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue"
   ],
   "beforeUpdateHookClassNameList": [
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\InheritTravelContext",
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncBookingCommissionSupplier",
-    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges"
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\DefaultDateRanges",
+    "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Booking\\CalculateBalanceDue"
   ],
   "afterCreateHookClassNameList": [
     "Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Common\\SyncHouseholdTravelers",

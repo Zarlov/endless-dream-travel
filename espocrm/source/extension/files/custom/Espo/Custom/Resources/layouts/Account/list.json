@@ -1,0 +1,21 @@
+[
+  {
+    "name": "name",
+    "link": true
+  },
+  {
+    "name": "website",
+    "notSortable": true,
+    "width": 25
+  },
+  {
+    "name": "emailAddress",
+    "notSortable": true,
+    "width": 20,
+    "hidden": true
+  },
+  {
+    "name": "billingAddressCountry",
+    "width": 18
+  }
+]

@@ -23,7 +23,7 @@ const externalIdField = (maxLength = 60) => field('varchar', { maxLength, index:
 
 write('manifest.json', {
   name: 'Endless Dream Travel Data Model',
-  version: '1.0.38',
+  version: '1.0.39',
   acceptableVersions: ['>=10.0.0 <11.0.0'],
   php: ['>=8.2'],
   releaseDate: '2026-08-21',
@@ -1571,6 +1571,12 @@ write('files/custom/Espo/Custom/Resources/layouts/Contact/defaultSidePanel.json'
 write('files/custom/Espo/Custom/Resources/layouts/Contact/list.json', contactListLayout);
 write('files/custom/Espo/Custom/Resources/layouts/Contact/listSmall.json', contactListLayout.slice(0, 4));
 write('files/custom/Espo/Custom/Resources/layouts/Account/defaultSidePanel.json', []);
+const vendorListLayout = [
+  { name: 'name', link: true },
+  { name: 'website', notSortable: true, width: 25 },
+  { name: 'emailAddress', notSortable: true, width: 20, hidden: true },
+  { name: 'billingAddressCountry', width: 18 }
+];
 const vendorDetailLayout = [{
   label: 'Details',
   rows: [
@@ -1588,9 +1594,13 @@ const vendorBottomLayout = ['edtClients', 'edtBookings', 'edtQuotes', 'edtLoyalt
 moduleWrite('Resources/layouts/Account/detail.json', vendorDetailLayout);
 moduleWrite('Resources/layouts/Account/detailSmall.json', vendorDetailLayout);
 moduleWrite('Resources/layouts/Account/bottomPanelsDetail.json', vendorBottomLayout);
+moduleWrite('Resources/layouts/Account/list.json', vendorListLayout);
+moduleWrite('Resources/layouts/Account/listSmall.json', vendorListLayout.slice(0, 3));
 write('files/custom/Espo/Custom/Resources/layouts/Account/detail.json', vendorDetailLayout);
 write('files/custom/Espo/Custom/Resources/layouts/Account/detailSmall.json', vendorDetailLayout);
 write('files/custom/Espo/Custom/Resources/layouts/Account/bottomPanelsDetail.json', vendorBottomLayout);
+write('files/custom/Espo/Custom/Resources/layouts/Account/list.json', vendorListLayout);
+write('files/custom/Espo/Custom/Resources/layouts/Account/listSmall.json', vendorListLayout.slice(0, 3));
 moduleWrite('Resources/metadata/recordDefs/Contact.json', {
   beforeCreateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress'],
   beforeUpdateHookClassNameList: ['Espo\\Modules\\EndlessDreamTravel\\Classes\\RecordHooks\\Contact\\CopyHouseholdAddress'],
@@ -1733,6 +1743,6 @@ contactI18n.fields.edtUseHouseholdAddress = 'Use Existing Household Address';
 moduleWrite('Resources/i18n/en_US/Contact.json', contactI18n);
 moduleWrite('Resources/i18n/en_US/Account.json', { fields: { edtVendorExternalId:'Vendor External ID', edtVendor:'Is Travel Vendor', edtVendorType:'Vendor Type', edtSupplierCode:'Vendor Code', edtVendorEmailName:'Email Display Name', edtVendorStatus:'Vendor Status', edtMarketingCategory:'Marketing Category', edtClients:'Clients' }, links: { contacts:'Vendor Contacts', edtClients:'Clients', edtBookings:'Bookings', edtCommissions:'Commissions', edtQuotes:'Travel Quotes', edtLoyaltyMemberships:'Loyalty Memberships' }, options: { edtMarketingCategory: { Cruise:'Cruise', Disney:'Disney', Universal:'Universal', Resort:'Resort', 'Tour / Excursion':'Tour / Excursion', Insurance:'Insurance', Transportation:'Transportation', Air:'Air', Other:'Other' } } });
 
-write('README.txt', `Endless Dream Travel Data Model 1.0.38\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.38 adds configurable final-payment reminders, a branded editable client email template, a 6:00 AM daily summary with missing-client-email warnings, a manual Send Payment Reminder action, and Vendor Email Display Name.\nClient reminders default off; reminder days default to 30, 14, 7, 3, and 1. A configured EspoCRM system outbound mailbox is required for delivery.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
+write('README.txt', `Endless Dream Travel Data Model 1.0.39\n\nTarget: EspoCRM 10.x\n\nCreates nine travel entities and extends Contact and Account. No client data is included.\nVersion 1.0.39 removes the standard Account Type column from the Vendors summary list while retaining the field on Vendor records.\nClient reminders default off; reminder days default to 30, 14, 7, 3, and 1. A configured EspoCRM system outbound mailbox is required for delivery.\nInstall from Administration > Extensions, then confirm the automatic rebuild completed.\nReview roles before importing data.\n\nImport identity fields:\nContact.edtExternalId <- ContactExternalId\nEdtHousehold.externalId <- HouseholdExternalId\nEdtTrip.externalId <- TripExternalId\nEdtBooking.externalId <- BookingExternalId\nEdtTripTraveler.externalId <- TripTravelerExternalId\nEdtBookingTraveler.externalId <- BookingTravelerExternalId\nEdtCommission.externalId <- CommissionExternalId\nEdtQuote.externalId <- QuoteExternalId\nEdtLoyaltyMembership.externalId <- LoyaltyExternalId\nEdtSegmentMembership.externalId <- SegmentMembershipExternalId\n`);
 
 console.log(JSON.stringify({ root, outputDir, entities: Object.keys(entities), files: fs.readdirSync(root, { recursive: true }).length }, null, 2));

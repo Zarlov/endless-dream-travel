@@ -2,27 +2,40 @@ import amawaterwaysSpecialImage from "../assets/specials/amawaterways.jpg";
 import adventuresByDisneySpecialImage from "../assets/specials/adventures-by-disney-rhone.webp";
 import beachesSpecialImage from "../assets/specials/beaches-resort.webp";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
-import exploraSpecialImage from "../assets/specials/explora-journeys.webp";
 import mscSpecialImage from "../assets/specials/msc-family-cruise.webp";
-import sandalsSpecialImage from "../assets/specials/sandals-resort.webp";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "August 17, 2026";
+export const weeklySpecialsLastUpdated = "August 24, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
+    {
+      line: "Royal Caribbean",
+      logo: brandLogos.rccl,
+      image:
+        "https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=1200&q=85",
+      sourceUrl:
+        "https://www.royalcaribbean.com/terms-and-conditions/promotions",
+      headline: "60% Off the Second Guest + Family Savings",
+      offer:
+        "Save 60% on the second guest and receive free fares for eligible third and fourth guests on select sailings, including many Summer 2027 vacations.",
+      bestFor:
+        "Families, Caribbean and Bahamas cruises, short getaways, multi-generational travel, and activity-filled ships",
+      finePrint:
+        "Book by September 3, 2026. Applies to select three-night-or-longer sailings departing August 26, 2026 or later. Free guests must be age 12 or younger and still pay taxes, fees, and port expenses. Holiday, Alaska, China, and other itinerary exclusions apply.",
+    },
     {
       line: "Viking",
       logo: brandLogos.viking,
       image: vikingSpecialImage,
       sourceUrl: "https://www.vikingcruises.com/oceans/promotions.html",
-      headline: "Summer Sale: Up to 35% Off + $25 Deposit",
+      headline: "Summer Sale: Special Fares + $25 Deposit",
       offer:
-        "Save up to 35% on select river and ocean voyages, with free or reduced airfare, special cruise fares, and a $25 deposit. Select expedition journeys offer savings of up to 20%.",
+        "Explore select river and ocean voyages with special cruise fares, free or reduced airfare on eligible itineraries, and a $25 deposit.",
       bestFor:
         "European river cruising, destination-focused ocean voyages, cultural enrichment, and premium adults-only travel",
       finePrint:
-        "Book by August 31, 2026. Savings, airfare benefits, gateways, departure dates, stateroom categories, final-payment dates, and promotional codes vary by itinerary. Confirm live pricing before booking.",
+        "Book by August 31, 2026. Airfare benefits, gateways, departure dates, stateroom categories, final-payment dates, and promotional codes vary by itinerary. The $25 deposit excludes World Cruises and has departure-date restrictions.",
     },
     {
       line: "AmaWaterways",
@@ -38,21 +51,6 @@ export function buildWeeklySpecials(brandLogos) {
         "Book by September 30, 2026. Valid on select new FIT and group bookings; solo travelers receive half the stated stateroom savings. AirPlus gateways, routing, transfers, availability, and combinability restrictions apply.",
     },
     {
-      line: "Explora Journeys",
-      logo: brandLogos.explora,
-      logoPlacement: "top-left",
-      image: exploraSpecialImage,
-      sourceUrl:
-        "https://explorajourneys.com/us/en/info/special-offers/an-invitation-to-the-ocean",
-      headline: "Save Up to $4,000 Per Suite",
-      offer:
-        "Save up to $4,000 per suite on eligible luxury journeys through February 5, 2027. A separate combinable offer provides savings of up to 30% on select journeys, along with a reduced deposit of 10%.",
-      bestFor:
-        "Luxury travelers, Mediterranean escapes, spacious oceanfront suites, elevated dining, and all-inclusive-style cruising",
-      finePrint:
-        "Book by August 25, 2026. The $4,000 offer applies to new OT1 GTY Ocean Terrace Suite reservations, requires full payment, and is nonrefundable. Eligible journeys, suite inventory, combinability, and exclusions are capacity controlled.",
-    },
-    {
       line: "MSC Cruises",
       logo: brandLogos.msc,
       image: mscSpecialImage,
@@ -64,37 +62,7 @@ export function buildWeeklySpecials(brandLogos) {
       bestFor:
         "Families, Caribbean and Bahamas cruises, Ocean Cay, European itineraries, and travelers seeking strong value",
       finePrint:
-        "Book by August 19, 2026. New U.S. bookings only. Savings apply to select sailings and the first two guests; children still pay government taxes and fees. Yacht Club is excluded from Kids Sail Free, and offer combinability is limited.",
-    },
-    {
-      line: "Virgin Voyages",
-      logo: brandLogos.virgin,
-      image:
-        "https://virginvoyages.imgix.net/dam/jcr%3A16bdf05b-503a-4cc6-a27f-4750cf4df533/breakpoint%3Ddesktop.png",
-      sourceUrl:
-        "https://www.virginvoyages.com/book/voyage-planner/find-a-voyage?cabins=1&currencyCode=USD&agentId=140046&agencyId=31527&bookingChannel=FMLINK",
-      headline: "Europe Sale: Up to $500 Onboard Credit",
-      offer:
-        "Book an eligible European voyage and receive up to $500 in onboard credit, a complimentary balcony upgrade, and 70% off the second Sailor.",
-      bestFor:
-        "Adults-only Caribbean and Mediterranean escapes, couples, modern dining, included Wi-Fi and fitness, and Sea Terrace cabins",
-      finePrint:
-        "Book by August 19, 2026 for select Europe departures from August 20, 2026 through October 22, 2028. Onboard credit varies by voyage length and eligible Sea Terrace or RockStar category. Chartered sailings and certain contracted groups are excluded. The 70%-off and balcony offer continues through August 31.",
-    },
-    {
-      line: "Disney Cruise Line",
-      logo: brandLogos.dcl,
-      image:
-        "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1000/1000/75/vision-dam/digital/parks-platform/parks-global-assets/disney-cruise-line/ships/dream/004087-DCL-Q3_Key-Visual-16x9.jpg?2023-02-07T12%3A44%3A12+00%3A00=",
-      sourceUrl:
-        "https://disneycruise.disney.go.com/special-offers/save-select-sailings/",
-      headline: "Save Up to $1,500 on Select Cruises",
-      offer:
-        "Save up to $1,500 per stateroom on select Disney Wonder, Disney Treasure, and Disney Fantasy sailings departing October 2026 through March 2027.",
-      bestFor:
-        "Disney families, fall breaks, Halloween and holiday travel, premium family cruising, and character experiences",
-      finePrint:
-        "Book by August 30, 2026 for select sailings from October 1, 2026 through March 31, 2027. The headline assumes three eligible guests; savings vary by cruise length and stateroom category. Concierge and suites are excluded. Taxes, fees, gratuities, and Port Adventures are additional.",
+        "Book by August 31, 2026. New U.S. bookings only. Savings apply to select sailings and the first two guests; children still pay government taxes and fees. Yacht Club is excluded from Kids Sail Free, and offer combinability is limited.",
     },
     {
       line: "Adventures by Disney",
@@ -116,13 +84,30 @@ export function buildWeeklySpecials(brandLogos) {
       image:
         "https://www.ncl.com/adobe/dynamicmedia/deliver/dm-aid--ff161251-4f98-4e8f-ae0f-253233c1a171/ncl-encore-waterfront-dining.jpg?preferwebp=true&quality=100",
       sourceUrl: "https://www.ncl.com/cruise-deals/promotion-terms",
-      headline: "50% Off + Up to $750 Onboard Credit",
+      headline: "Up to $500 Onboard Credit on Select Cruises",
       offer:
-        "Save 50% on all open-for-sale cruises and receive up to $750 in onboard credit per stateroom on select sailings. Free at Sea benefits remain available on qualifying reservations.",
+        "Receive up to $500 in onboard credit per stateroom on select Fall and Winter 2026–2027 and Summer 2027 cruises when booking with Endless Dream Travel.",
       bestFor:
-        "Caribbean, Bahamas, Alaska, Bermuda, Europe, the Mexican Riviera, and clients seeking cruise savings with onboard credit",
+        "Caribbean, Bahamas, Alaska, Bermuda, Europe, the Mexican Riviera, and clients who want advisor-only savings",
       finePrint:
-        "Book by August 18, 2026. The 50% savings applies to all open-for-sale cruises; onboard credit applies only to select ships, sailings, and Balcony-or-higher accommodations. The $750 maximum requires an eligible six-night-or-longer Haven booking. Service charges and optional packages cost extra.",
+        "Book by August 31, 2026 using GMAOFFER. Available by phone, personal cruise consultant, or travel advisor rather than online. Select sailings only; Sailaway categories are excluded, and the $500 maximum requires an eligible six-night-or-longer Suite or Haven booking.",
+    },
+    {
+      line: "Holland America Line",
+      logo: {
+        name: "Holland America Line",
+      },
+      image:
+        "https://images.unsplash.com/photo-1548690312-e3b507d8c110?auto=format&fit=crop&w=1200&q=85",
+      sourceUrl:
+        "https://www.hollandamerica.com/en/us/cruise-deals/deals-card-configuration/SOS26",
+      headline: "Up to 40% Off + Up to $400 Onboard Credit",
+      offer:
+        "Save up to 40% on select tropical cruises and receive up to $400 in onboard credit on eligible warm-weather getaways.",
+      bestFor:
+        "Caribbean, Mexico, holiday sailings, refined mid-size ships, couples, and destination-focused cruising",
+      finePrint:
+        "Book by August 31, 2026 for select Fall 2026 through Spring 2027 warm-weather cruises. Savings and onboard credit vary by itinerary and stateroom; availability is capacity controlled.",
     },
     {
       line: "Princess Cruises",
@@ -154,19 +139,6 @@ export function buildWeeklySpecials(brandLogos) {
         "Disney families, late-summer trips, fall and holiday getaways, longer resort stays, and package savings",
       finePrint:
         "Valid for most Sunday-through-Thursday nights October 4–November 19, 2026 and most nights November 22–December 24, 2026. Savings vary by resort and room; length-of-stay requirements and exclusions may apply. Discounted inventory is limited.",
-    },
-    {
-      line: "Sandals Resorts",
-      logo: brandLogos.sandals,
-      image: sandalsSpecialImage,
-      sourceUrl: "https://www.sandals.com/sale/?variant=exp1",
-      headline: "The Great Jamaica Comeback Sale",
-      offer:
-        "Receive up to $1,500 in instant credit, up to $350 in airfare credit, and a complimentary Jamaican adventure on eligible stays at seven Sandals resorts in Jamaica.",
-      bestFor:
-        "Adults-only all-inclusive escapes, honeymoons, anniversaries, Caribbean travel, and premium suites",
-      finePrint:
-        "Book by August 24, 2026 for eligible travel from August 4, 2026 through December 25, 2027; December 26, 2026 through January 1, 2027 is excluded. The complimentary adventure requires a qualifying five-night stay and registration within 72 hours. Resort, room, airfare, and travel-date restrictions apply.",
     },
     {
       line: "Beaches Resorts",

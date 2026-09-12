@@ -1,11 +1,10 @@
-import amawaterwaysSpecialImage from "../assets/specials/amawaterways.jpg";
 import adventuresByDisneySpecialImage from "../assets/specials/adventures-by-disney-rhone.webp";
 import beachesSpecialImage from "../assets/specials/beaches-resort.webp";
 import disneyWorldSpecialImage from "../assets/specials/disney-world.png";
 import exploraSpecialImage from "../assets/specials/explora-journeys.webp";
 import vikingSpecialImage from "../assets/specials/viking.jpg";
 
-export const weeklySpecialsLastUpdated = "September 7, 2026";
+export const weeklySpecialsLastUpdated = "September 12, 2026";
 
 export function buildWeeklySpecials(brandLogos) {
   return [
@@ -36,19 +35,6 @@ export function buildWeeklySpecials(brandLogos) {
         "European river cruising, destination-focused ocean voyages, cultural enrichment, and premium adults-only travel",
       finePrint:
         "Book by September 30, 2026. New U.S. bookings only. Air benefits, gateways, departure dates, stateroom categories, promotional codes, and early final-payment dates vary. The $25 deposit excludes World Cruises and has departure-date restrictions.",
-    },
-    {
-      line: "AmaWaterways",
-      logo: brandLogos.amaWaterways,
-      image: amawaterwaysSpecialImage,
-      sourceUrl: "https://www.amawaterways.com/offers/september-savings",
-      headline: "Save Up to $2,500 + $250 Onboard Credit",
-      offer:
-        "Save up to $2,500 per stateroom and receive $250 in onboard credit on select 2026, 2027, and 2028 river cruises through Europe, Colombia, Egypt, Africa, and the Mekong.",
-      bestFor:
-        "Luxury river cruising, Europe, Colombia, immersive itineraries, solo travelers, and pre- or post-cruise land stays",
-      finePrint:
-        "Book by September 15, 2026. Valid on select new FIT and group bookings; solo travelers receive half the stated stateroom savings. Airfare, land packages, gratuities, availability, and combinability restrictions apply.",
     },
     {
       line: "Explora Journeys",
@@ -83,14 +69,14 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.ncl,
       image:
         "https://www.ncl.com/adobe/dynamicmedia/deliver/dm-aid--ff161251-4f98-4e8f-ae0f-253233c1a171/ncl-encore-waterfront-dining.jpg?preferwebp=true&quality=100",
-      sourceUrl: "https://www.ncl.com/cruise-deals/semi-annual-sale",
-      headline: "50% Off All Cruises + Prepaid Gratuities",
+      sourceUrl: "https://www.ncl.com/cruise-deals/promotion-terms",
+      headline: "50% Off All Cruises + Up to $500 Onboard Credit",
       offer:
-        "Save 50% on all cruises and receive prepaid service charges on select sailings when booking a Balcony stateroom or higher.",
+        "For a very limited time, save 50% on every open-for-sale cruise and receive up to $500 in onboard credit per stateroom on select sailings.",
       bestFor:
         "Caribbean, Bahamas, Alaska, Bermuda, Europe, the Mexican Riviera, families, couples, and longer voyages",
       finePrint:
-        "Limited-time offer with no fixed public closing date. The 50% savings applies to cruises through February 2028; prepaid service charges are limited to select sailings and Balcony-or-higher accommodations. Specialty dining, beverage, spa, and discretionary gratuities remain additional.",
+        "Exceptional short-window offer: book by September 14, 2026 at 11:59 p.m. ET. The 50% discount applies to new individual bookings in all categories. Onboard credit is available on select 4-night-or-longer sailings and varies by cruise length and category; the $500 maximum requires a Suite or The Haven on a sailing of 6 nights or longer. Additional restrictions apply.",
     },
     {
       line: "Virgin Voyages",
@@ -142,13 +128,13 @@ export function buildWeeklySpecials(brandLogos) {
       logo: brandLogos.beaches,
       image: beachesSpecialImage,
       sourceUrl: "https://www.beaches.com/sale/",
-      headline: "Fall Fam Jam: Family Extras Included",
+      headline: "Winter Splash Sale: Up to $2,325 in Credits",
       offer:
-        "Receive a complimentary Sesame Street character breakfast and morning yoga experience, plus a $175 spa credit on qualifying fall family vacations.",
+        "Make a family escape even sweeter with up to $1,400 in instant credit, up to $750 in air credit, and a $175 spa credit on qualifying Beaches vacations.",
       bestFor:
         "Caribbean family vacations, multi-generational trips, Turks & Caicos, Jamaica, Sesame Street experiences, and all-inclusive ease",
       finePrint:
-        "Book by October 31, 2026 for qualifying five-night stays during eligible August 1–October 31 travel dates in 2026 or 2027. Resort, room-category, registration, availability, and combinability restrictions may apply.",
+        "Book September 8–October 5, 2026. Credit amounts vary by resort, room category, stay length, travel dates, and availability. Registration and other offer requirements apply; confirm eligible accommodations and full terms before booking.",
     },
   ];
 }

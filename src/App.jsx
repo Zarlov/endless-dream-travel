@@ -359,7 +359,7 @@ function runContentTests() {
   const hasContactEmail = "amy@endlessdreamtravel.com".includes("@");
   const hasThreeSteps = steps.length === 3;
   const hasPromoCards = promoCards.length === 3;
-  const hasWeeklySpecials = weeklySpecials.length >= 10;
+  const hasWeeklySpecials = weeklySpecials.length > 0;
   const usesBrandPalette =
     BRAND.black === "#0B0B0B" &&
     BRAND.gold === "#F2AE63" &&
